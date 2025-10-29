@@ -6,8 +6,9 @@ import (
 
 var proxyHostMap = map[string]string{
 	"www.baidu.com": "http://www.baidu.com/",
-	"uniauth-gf": "http://localhost:8000/",
+	"uniauth-gf":    "http://localhost:8000/",
 	"uniauth-admin": "http://localhost:5173/",
+	"uniauth":       "http://localhost:5173/",
 }
 
 func GetProxyHost(service string) (string, error) {
