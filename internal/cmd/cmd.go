@@ -52,19 +52,15 @@ var (
 				}
 
 				// 获取服务对应的代理地址
-				proxyHostVar, err := g.Cfg("mingshu-config").Get(ctx, "proxy_host_map."+service)
+				proxyHostMap := g.Cfg("mingshu-config").MustData(ctx)
+				proxyHostVar, ok := proxyHostMap[service]
 				g.Dump(g.Cfg("mingshu-config").MustData(ctx))
-				if err != nil {
-					g.Log().Errorf(r.Context(), "获取服务[%s]对应的代理地址失败: %v", service, err)
-					r.Response.WriteStatus(http.StatusBadRequest, err.Error())
-					return
-				}
-				if proxyHostVar.IsNil() || proxyHostVar.String() == "" {
+				if !ok {
 					g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)
 					r.Response.WriteStatus(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址", service))
 					return
 				}
-				proxyHost := proxyHostVar.String()
+				proxyHost := proxyHostVar.(string)
 				r.MakeBodyRepeatableRead(false)
 
 				// 创建反向代理
