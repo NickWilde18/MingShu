@@ -53,6 +53,7 @@ var (
 
 				// 获取服务对应的代理地址
 				proxyHostVar, err := g.Cfg("mingshu-config").Get(ctx, "proxy_host_map."+service)
+				g.Dump(g.Cfg("mingshu-config").MustData(ctx))
 				if err != nil {
 					g.Log().Errorf(r.Context(), "获取服务[%s]对应的代理地址失败: %v", service, err)
 					r.Response.WriteStatus(http.StatusBadRequest, err.Error())
