@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -52,9 +53,14 @@ var (
 
 				// 获取服务对应的代理地址
 				proxyHostVar, err := g.Cfg("mingshu-config").Get(ctx, "proxy_host_map."+service)
-				if err != nil || proxyHostVar.IsNil() || proxyHostVar.String() == "" {
+				if err != nil {
 					g.Log().Errorf(r.Context(), "获取服务[%s]对应的代理地址失败: %v", service, err)
 					r.Response.WriteStatus(http.StatusBadRequest, err.Error())
+					return
+				}
+				if proxyHostVar.IsNil() || proxyHostVar.String() == "" {
+					g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)
+					r.Response.WriteStatus(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址", service))
 					return
 				}
 				proxyHost := proxyHostVar.String()
