@@ -28,21 +28,20 @@ jobs:
         uses: actions/setup-go@v6
         with:
           cache: true
-          cache-dependency-path: uniauth-gf/go.sum
+          cache-dependency-path: go.sum
           go-version: "1.25.0"
 
       - name: Install GoFrame
         run: go install github.com/gogf/gf/cmd/gf/v2@latest
 
       - name: Build Uniauth
-        working-directory: uniauth-gf
         run: gf build
 
       - name: Upload Artifacts 1
         uses: actions/upload-artifact@v4
         with:
           name: mingshu-gateway
-          path: uniauth-gf/bin/linux_amd64/mingshu
+          path: bin/linux_amd64/mingshu
 
   # Job2 构建 Docker 镜像
   build-docker:
