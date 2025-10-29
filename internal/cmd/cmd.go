@@ -72,7 +72,12 @@ var (
 				proxy.ServeHTTP(r.Response.Writer, r.Request)
 			})
 
-			s.SetPort(10200)
+			s.EnableHTTPS(
+				"/app/certs/tls.crt",
+				"/app/certs/tls.key",
+			)
+			s.SetPort(8080)
+			s.SetHTTPSPort(8081)
 			s.Run()
 			return nil
 		},
