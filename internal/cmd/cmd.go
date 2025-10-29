@@ -7,9 +7,11 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gogf/gf/contrib/config/kubecm/v2"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/os/gctx"
 
 	svc "MingShu/internal/service"
 )
@@ -20,6 +22,20 @@ var (
 		Usage: "main",
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			// 初始化，加载 ConfigMap
+			adapter, err := kubecm.New(gctx.GetInitCtx(), kubecm.Config{
+				ConfigMap: "dev-mingshu-gateway-config",     // Name of the ConfigMap to use
+				DataItem:  "proxy_host_map", // Key in the ConfigMap data field
+			})
+			if err != nil {
+				g.Log().Errorf(ctx, "从 Kuebernetes ConfigMap 初始化配置中心失败: %v", err)
+				g.Log().Info(ctx, "从本地配置文件初始化配置中心")
+				// return
+			} else {
+				g.Cfg("mingshu-config").SetAdapter(adapter)
+			}
+
+			// 服务器
 			s := g.Server()
 			s.BindHandler("/*", func(r *ghttp.Request) {
 				g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
@@ -72,12 +88,12 @@ var (
 				proxy.ServeHTTP(r.Response.Writer, r.Request)
 			})
 
-			s.EnableHTTPS(
-				"/app/certs/tls.crt",
-				"/app/certs/tls.key",
-			)
+			// s.EnableHTTPS(
+			// 	"/app/certs/tls.crt",
+			// 	"/app/certs/tls.key",
+			// )
 			s.SetPort(8080)
-			s.SetHTTPSPort(8081)
+			// s.SetHTTPSPort(8081)
 			s.Run()
 			return nil
 		},
