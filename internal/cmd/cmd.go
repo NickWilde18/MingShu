@@ -12,8 +12,6 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gctx"
-
-	svc "MingShu/internal/service"
 )
 
 var (
@@ -53,12 +51,13 @@ var (
 				}
 
 				// 获取服务对应的代理地址
-				proxyHost, err := svc.GetProxyHost(service)
-				if err != nil {
+				proxyHostVar, err := g.Cfg("mingshu-config").Get(ctx, "proxy_host_map."+service)
+				if err != nil || proxyHostVar.IsNil() || proxyHostVar.String() == "" {
 					g.Log().Errorf(r.Context(), "获取服务[%s]对应的代理地址失败: %v", service, err)
 					r.Response.WriteStatus(http.StatusBadRequest, err.Error())
 					return
 				}
+				proxyHost := proxyHostVar.String()
 				r.MakeBodyRepeatableRead(false)
 
 				// 创建反向代理
