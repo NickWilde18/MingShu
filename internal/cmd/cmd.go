@@ -43,7 +43,6 @@ var (
 				service := r.Header.Get("X-Service")
 				if service == "" {
 					// 规则二，路由匹配，常用于前端SPA的返回
-					// 同时去掉前缀
 					pathList := strings.Split(r.URL.Path, "/")
 					if len(pathList) < 2 || pathList[1] == "" {
 						r.Response.WriteStatus(http.StatusBadRequest, "未获取到服务名称")
@@ -62,7 +61,6 @@ var (
 					return
 				}
 				proxyHost := proxyHostVar.(string)
-				r.MakeBodyRepeatableRead(true)
 
 				// 创建反向代理
 				proxy := &httputil.ReverseProxy{
@@ -92,6 +90,14 @@ var (
 						}
 
 						g.Log().Infof(r.Context(), `[Gateway]: %s -> [%s]: %s://%s%s`, r.GetUrl(), service, req.URL.Scheme, req.URL.Host, req.URL.Path)
+					},
+					ModifyResponse: func(resp *http.Response) error {
+						// 记录响应状态和 Location
+						if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+							location := resp.Header.Get("Location")
+							g.Log().Infof(r.Context(), `[上游返回重定向] Status=%d, Location=%s`, resp.StatusCode, location)
+						}
+						return nil
 					},
 					ErrorHandler: func(writer http.ResponseWriter, request *http.Request, e error) {
 						g.Log().Errorf(r.Context(), "proxy 失败: %v", e)
