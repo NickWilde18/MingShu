@@ -15,21 +15,24 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 )
 
+// 标记是否是本地环境。本地环境不启动 HTTPS 服务器。
+var LOCAL bool = false
+
 var (
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			// 初始化，加载 ConfigMap
+			// 初始化，配置 配置加载来源
 			adapter, err := kubecm.New(gctx.GetInitCtx(), kubecm.Config{
-				ConfigMap: "dev-mingshu-gateway-config", // Name of the ConfigMap to use
-				DataItem:  "proxy_host_map",             // Key in the ConfigMap data field
+				ConfigMap: "dev-mingshu-gateway-config",
+				DataItem:  "proxy_host_map",
 			})
 			if err != nil {
-				g.Log().Errorf(ctx, "从 Kuebernetes ConfigMap 初始化配置中心失败: %v", err)
-				g.Log().Info(ctx, "从本地配置文件初始化配置中心")
-				// return
+				g.Log().Debugf(ctx, "从 Kuebernetes ConfigMap 初始化配置中心失败: %v", err)
+				g.Log().Info(ctx, "从 本地配置文件 初始化配置中心")
+				LOCAL = true
 			} else {
 				g.Cfg("mingshu-config").SetAdapter(adapter)
 				g.Log().Info(ctx, "从 Kubernetes ConfigMap 初始化配置中心")
@@ -97,7 +100,7 @@ var (
 							req.Header.Set("X-Forwarded-Proto", "http")
 						}
 
-						g.Log().Infof(r.Context(), `[Gateway]: %s -> [%s]: %s://%s%s`, r.GetUrl(), service, req.URL.Scheme, req.URL.Host, req.URL.Path)
+						g.Log().Infof(r.Context(), `[网关]: %s -> [%s]: %s://%s%s`, r.GetUrl(), service, req.URL.Scheme, req.URL.Host, req.URL.Path)
 					},
 					ModifyResponse: func(resp *http.Response) error {
 						// 记录响应状态和 Location
@@ -115,13 +118,16 @@ var (
 				proxy.ServeHTTP(r.Response.Writer, r.Request)
 			})
 
-			// s.EnableHTTPS(
-			// 	"/app/certs/tls.crt",
-			// 	"/app/certs/tls.key",
-			// )
-			s.SetPort(8080)
-			// s.SetHTTPSPort(8081)
+			if !LOCAL {
+				s.EnableHTTPS(
+					"/app/certs/tls.crt",
+					"/app/certs/tls.key",
+				)
+				s.SetHTTPSPort(g.Cfg().MustGet(ctx, "server.httpsPort").Int())
+			}
+			s.SetPort(g.Cfg().MustGet(ctx, "server.httpPort").Int())
 			s.Run()
+			
 			return nil
 		},
 	}
