@@ -7,11 +7,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
 )
 
-func ReverseProxy(r *ghttp.Request) {	
+func ReverseProxy(r *ghttp.Request) {
 	ctx := r.Context()
 
 	g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
@@ -29,7 +29,7 @@ func ReverseProxy(r *ghttp.Request) {
 	}
 
 	// 获取服务对应的代理地址
-	proxyHostMap := g.Cfg("mingshu-config").MustData(ctx)
+	proxyHostMap := g.Cfg("uniauth-gateway-config").MustData(ctx)
 	proxyHostVar, ok := proxyHostMap[service]
 	if !ok {
 		g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)

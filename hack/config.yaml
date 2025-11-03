@@ -3,7 +3,7 @@
 # https://goframe.org/docs/cli
 gfcli:
   build:
-    name: "mingshu"
+    name: "uniauth-gateway"
     arch: "amd64"
     system: "linux"
     path: "./bin"

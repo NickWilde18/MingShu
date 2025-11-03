@@ -11,9 +11,9 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gsession"
 
-	"MingShu/internal/middlewares"
-	"MingShu/internal/service/auth"
-	"MingShu/internal/service/proxy"
+	"uniauth-gateway/internal/middlewares"
+	"uniauth-gateway/internal/service/auth"
+	"uniauth-gateway/internal/service/proxy"
 )
 
 // 标记是否是本地环境。本地环境不启动 HTTPS 服务器。
@@ -30,7 +30,7 @@ var (
 			// 初始化
 			// 配置配置文件来源，同时确定程序在集群内启动还是外部启动
 			adapter, err := kubecm.New(gctx.GetInitCtx(), kubecm.Config{
-				ConfigMap: "dev-mingshu-gateway-config",
+				ConfigMap: "dev-uniauth-gateway-config",
 				DataItem:  "proxy_host_map",
 			})
 			if err != nil {
@@ -38,7 +38,7 @@ var (
 				g.Log().Info(ctx, "从 本地配置文件 初始化配置中心")
 				LOCAL = true
 			} else {
-				g.Cfg("mingshu-config").SetAdapter(adapter)
+				g.Cfg("uniauth-gateway-config").SetAdapter(adapter)
 				g.Log().Info(ctx, "从 Kubernetes ConfigMap 初始化配置中心")
 			}
 			// ghttp server 各种特性开启与配置
@@ -47,9 +47,6 @@ var (
 			s.SetPort(g.Cfg().MustGet(ctx, "server.httpPort").Int())
 			// 设置 Session Age
 			s.SetSessionMaxAge(12 * time.Hour)
-			// 设置模板目录
-			s.SetServerRoot("resource")
-			s.SetView(g.View())
 			// === 集群内外部启动配置 ===
 			if !LOCAL {
 				// 集群外部启动
