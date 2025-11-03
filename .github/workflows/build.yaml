@@ -32,7 +32,7 @@ jobs:
           go-version: "1.25.0"
 
       - name: Build Uniauth
-        run: go build -o uniauth-gateway -ldflags="-w -s" main.go
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o uniauth-gateway -ldflags="-w -s" main.go
 
       - name: Upload Artifacts 1
         uses: actions/upload-artifact@v4
