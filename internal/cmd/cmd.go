@@ -78,7 +78,12 @@ var (
 						req.URL.Scheme = target.Scheme
 						req.URL.Host = target.Host
 						req.URL.Path = r.URL.Path
-						req.Header.Set("X-Forwarded-For", req.RemoteAddr)
+						req.Host = r.Host
+						if prior := req.Header.Get("X-Forwarded-For"); prior != "" {
+							req.Header.Set("X-Forwarded-For", prior+", "+r.RemoteAddr)
+						} else {
+							req.Header.Set("X-Forwarded-For", r.RemoteAddr)
+						}
 						req.Header.Set("X-Forwarded-Host", r.Host)
 						if r.TLS != nil {
 							req.Header.Set("X-Forwarded-Proto", "https")
