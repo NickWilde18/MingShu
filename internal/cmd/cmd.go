@@ -40,7 +40,6 @@ var (
 			s.BindHandler("/*", func(r *ghttp.Request) {
 				g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
 				// 规则一，查看请求头请求的服务
-				g.Dump(r)
 				service := r.Header.Get("X-Service")
 				if service == "" {
 					// 规则二，路由匹配，常用于前端SPA的返回
@@ -63,7 +62,7 @@ var (
 					return
 				}
 				proxyHost := proxyHostVar.(string)
-				r.MakeBodyRepeatableRead(false)
+				r.MakeBodyRepeatableRead(true)
 
 				// 创建反向代理
 				proxy := &httputil.ReverseProxy{
@@ -79,8 +78,13 @@ var (
 						req.URL.Scheme = target.Scheme
 						req.URL.Host = target.Host
 						req.URL.Path = r.URL.Path
-						req.Host = target.Host
 						req.Header.Set("X-Forwarded-For", req.RemoteAddr)
+						req.Header.Set("X-Forwarded-Host", r.Host)
+						if r.TLS != nil {
+							req.Header.Set("X-Forwarded-Proto", "https")
+						} else {
+							req.Header.Set("X-Forwarded-Proto", "http")
+						}
 
 						g.Log().Infof(r.Context(), `[Gateway]: %s -> [%s]: %s://%s%s`, r.GetUrl(), service, req.URL.Scheme, req.URL.Host, req.URL.Path)
 					},
