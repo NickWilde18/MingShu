@@ -23,8 +23,8 @@ var (
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化，加载 ConfigMap
 			adapter, err := kubecm.New(gctx.GetInitCtx(), kubecm.Config{
-				ConfigMap: "dev-mingshu-gateway-config",     // Name of the ConfigMap to use
-				DataItem:  "proxy_host_map", // Key in the ConfigMap data field
+				ConfigMap: "dev-mingshu-gateway-config", // Name of the ConfigMap to use
+				DataItem:  "proxy_host_map",             // Key in the ConfigMap data field
 			})
 			if err != nil {
 				g.Log().Errorf(ctx, "从 Kuebernetes ConfigMap 初始化配置中心失败: %v", err)
@@ -40,6 +40,7 @@ var (
 				g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
 				// 规则一，查看请求头请求的服务
 				service := r.Header.Get("X-Service")
+				forwardPath := r.URL.Path
 				if service == "" {
 					// 规则二，路由匹配，常用于前端SPA的返回
 					// 同时去掉前缀
@@ -47,6 +48,10 @@ var (
 					if len(pathList) < 2 || pathList[1] == "" {
 						r.Response.WriteStatus(http.StatusBadRequest, "未获取到服务名称")
 						return
+					}
+					forwardPath = strings.TrimPrefix(r.URL.Path, "/"+pathList[1])
+					if forwardPath == "" {
+						forwardPath = "/"
 					}
 					service = pathList[1]
 				}
@@ -76,7 +81,7 @@ var (
 						// 重写请求的 URL、Host 和 请求头
 						req.URL.Scheme = target.Scheme
 						req.URL.Host = target.Host
-						req.URL.Path = r.URL.Path
+						req.URL.Path = forwardPath
 						req.Host = target.Host
 						req.Header.Set("X-Forwarded-For", req.RemoteAddr)
 
