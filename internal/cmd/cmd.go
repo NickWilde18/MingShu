@@ -75,7 +75,15 @@ var (
 						// 重写请求的 URL、Host 和 请求头
 						req.URL.Scheme = target.Scheme
 						req.URL.Host = target.Host
-						req.URL.Path = r.URL.Path
+						// 如果路径不以斜杠结尾，自动补上（避免 Nginx 301 补斜杠）
+						// 只有同时满足两个条件才补斜杠：
+						// 路径不以 / 结尾（!strings.HasSuffix(forwardPath, "/")）
+						// 最后一段不包含 .（!strings.Contains(..., ".")）
+						forwardPath := r.URL.Path
+						if !strings.HasSuffix(forwardPath, "/") && !strings.Contains(forwardPath[strings.LastIndex(forwardPath, "/")+1:], ".") {
+							forwardPath += "/"
+						}
+						req.URL.Path = forwardPath
 						req.Host = r.Host
 						if prior := req.Header.Get("X-Forwarded-For"); prior != "" {
 							req.Header.Set("X-Forwarded-For", prior+", "+r.RemoteAddr)
