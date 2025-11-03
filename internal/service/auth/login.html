@@ -12,7 +12,7 @@
 
     <script>
     function login() {
-        window.location.href = `https://sts.cuhk.edu.cn/adfs/oauth2/authorize?client_id={{ .client_id }}&response_type=code&redirect_uri={{ .redirect_uri }}&resource={{ .resource }}&state={{ .state }}`;
+        window.location.href = `https://sts.cuhk.edu.cn/adfs/oauth2/authorize?client_id={{ .Config.sso.client_id }}&response_type=code&redirect_uri={{ .Config.sso.redirect_uri }}&resource={{ .Config.sso.resource }}&state={{ .Session.state }}`;
     }
     </script>
 </html>

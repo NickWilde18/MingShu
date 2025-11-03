@@ -6,13 +6,14 @@ import (
 
 	"github.com/gogf/gf/contrib/config/kubecm/v2"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gsession"
 
 	"MingShu/internal/middlewares"
-	"MingShu/internal/service/proxy"
 	"MingShu/internal/service/auth"
+	"MingShu/internal/service/proxy"
 )
 
 // 标记是否是本地环境。本地环境不启动 HTTPS 服务器。
@@ -46,6 +47,9 @@ var (
 			s.SetPort(g.Cfg().MustGet(ctx, "server.httpPort").Int())
 			// 设置 Session Age
 			s.SetSessionMaxAge(12 * time.Hour)
+			// 设置模板目录
+			s.SetServerRoot("resource")
+			s.SetView(g.View())
 			// === 集群内外部启动配置 ===
 			if !LOCAL {
 				// 集群外部启动
@@ -63,15 +67,21 @@ var (
 				s.SetSessionStorage(gsession.NewStorageMemory())
 			}
 
-			// 中间件绑定
+			// 全局中间件 - 错误处理
 			s.Use(middlewares.ErrorHandler)
-			s.Use(middlewares.VerifyLoginStatus)
 
-			// Handler 绑定
-			s.BindHandler("/auth/login", auth.Login)
-			s.BindHandler("/auth/logout", auth.Logout)
-			s.BindHandler("/auth/callback", auth.Callback)
-			s.BindHandler("/*", proxy.ReverseProxy)
+			// 不需要登录验证的路由组
+			s.Group("/auth", func(group *ghttp.RouterGroup) {
+				group.GET("/login", auth.Login)
+				group.GET("/logout", auth.Logout)
+				group.GET("/callback", auth.Callback)
+			})
+
+			// 需要登录验证的路由组
+			s.Group("/", func(group *ghttp.RouterGroup) {
+				group.Middleware(middlewares.VerifyLoginStatus)
+				group.ALL("/*", proxy.ReverseProxy)
+			})
 
 			s.Run()
 			return nil

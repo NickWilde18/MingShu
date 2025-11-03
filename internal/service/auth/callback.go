@@ -55,7 +55,6 @@ func Callback(r *ghttp.Request) {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.New("JWT 中没有 upn 字段"))
 	}
 
-
 	// 先看upn存不存在
 	// 再看upn有没有权限进入
 	// 最后Ensure QP

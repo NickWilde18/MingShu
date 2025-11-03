@@ -12,9 +12,10 @@ import (
 
 // ErrorInfo 错误信息结构
 type ErrorInfo struct {
-	Code    int
-	Message string
-	Detail  string // 详细信息（可选）
+	Code     int
+	Message  string
+	Detail   string // 详细信息（可选）
+	CustomJS string // 自定义 JavaScript 代码（可选）
 }
 
 // 上下文中存储自定义错误信息的 key
@@ -69,21 +70,28 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 	r.Response.ClearBuffer()
 
 	// 渲染错误页面
-	showErrorPage(r, info.Code, info.Message, info.Detail)
+	showErrorPage(r, info.Code, info.Message, info.Detail, info.CustomJS)
 }
 
 // showErrorPage 显示错误页面
-func showErrorPage(r *ghttp.Request, statusCode int, message string, detail string) {
+func showErrorPage(r *ghttp.Request, statusCode int, message string, detail string, customJS ...string) {
 	ctx := r.Context()
-
-	// 设置响应状态码
-	r.Response.WriteStatus(statusCode)
 
 	// 记录错误日志
 	logError(ctx, statusCode, message, detail)
 
+	// 设置响应头
+	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+	r.Response.Status = statusCode
+
+	// 获取自定义 JS（可选参数）
+	js := ""
+	if len(customJS) > 0 {
+		js = customJS[0]
+	}
+
 	// 渲染错误页面
-	htmlContent := generateErrorHTML(statusCode, message, detail)
+	htmlContent := generateErrorHTML(statusCode, message, detail, js)
 	r.Response.Write(htmlContent)
 }
 
@@ -108,109 +116,76 @@ func logError(ctx context.Context, statusCode int, message string, detail string
 }
 
 // generateErrorHTML 生成错误页面HTML
-func generateErrorHTML(statusCode int, message string, detail string) string {
-	// 简洁美观的错误页面
+func generateErrorHTML(statusCode int, message string, detail string, customJS string) string {
 	html := fmt.Sprintf(`<!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>错误 %d</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .error-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%%;
-            padding: 40px;
-            animation: slideIn 0.5s ease-out;
-        }
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .error-icon {
-            text-align: center;
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-        .error-code {
-            text-align: center;
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-        .error-message {
-            text-align: center;
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-        .detail-section {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 5px;
-            font-size: 14px;
-            color: #856404;
-            word-break: break-all;
-        }
-        .back-button {
-            display: block;
-            width: 100%%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
-            color: white;
-            text-align: center;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>%d %s</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+        padding-top: 50px;
+    }
+    h1 {
+        font-size: 1.5em;
+        font-weight: normal;
+        margin: 0 0 0.5em 0;
+        padding: 0;
+    }
+    p {
+        margin: 0.5em 0;
+        line-height: 1.6;
+    }
+    a {
+        color: #06c;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    .detail {
+        margin-top: 1.5em;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-left: 3px solid #999;
+        font-size: 0.9em;
+        color: #666;
+    }
+    hr {
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1.5em 0;
+    }
+    .footer {
+        margin-top: 2em;
+        font-size: 0.9em;
+        color: #999;
+    }
+</style>
+%s
 </head>
 <body>
-    <div class="error-container">
-        <div class="error-icon">⚠️</div>
-        <div class="error-code">错误 %d</div>
-        <div class="error-message">%s</div>
-        %s
-        <a href="javascript:history.back()" class="back-button">返回上一页</a>
-    </div>
+<h1>%d %s</h1>
+<p>%s</p>
+%s
+<hr>
+<p class="footer">香港中文大学（深圳）GPT服务统一鉴权系统</p>
 </body>
-</html>`, statusCode, statusCode, escapeHTML(message), generateDetailSection(detail))
+</html>`, statusCode, http.StatusText(statusCode), generateCustomJSSection(customJS), statusCode, http.StatusText(statusCode), message, generateDetailSection(detail))
 
 	return html
+}
+
+// generateCustomJSSection 生成自定义 JS 部分
+func generateCustomJSSection(customJS string) string {
+	if customJS == "" {
+		return ""
+	}
+	return fmt.Sprintf("<script>\n%s\n</script>", customJS)
 }
 
 // generateDetailSection 生成详细信息部分
@@ -218,9 +193,9 @@ func generateDetailSection(detail string) string {
 	if detail == "" {
 		return ""
 	}
-	return fmt.Sprintf(`<div class="detail-section">
-            <strong>详细信息：</strong><br>%s
-        </div>`, escapeHTML(detail))
+	return fmt.Sprintf(`<div class="detail">
+<strong>详细信息：</strong><br>%s
+</div>`, escapeHTML(detail))
 }
 
 // escapeHTML 简单的HTML转义
