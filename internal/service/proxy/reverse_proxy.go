@@ -14,7 +14,6 @@ import (
 func ReverseProxy(r *ghttp.Request) {
 	ctx := r.Context()
 
-	g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
 	// 规则一，查看请求头请求的服务
 	service := r.Header.Get("X-Service")
 	if service == "" {
@@ -25,7 +24,6 @@ func ReverseProxy(r *ghttp.Request) {
 			return
 		}
 		service = pathList[1]
-		g.Log().Infof(ctx, "从路径中获取服务名称: %s", service)
 	}
 
 	// 获取服务对应的代理地址

@@ -1,12 +1,10 @@
 package middlewares
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
@@ -75,11 +73,6 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 
 // showErrorPage 显示错误页面
 func showErrorPage(r *ghttp.Request, statusCode int, message string, detail string, customJS ...string) {
-	ctx := r.Context()
-
-	// 记录错误日志
-	logError(ctx, statusCode, message, detail)
-
 	// 设置响应头
 	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 	r.Response.Status = statusCode
@@ -93,26 +86,6 @@ func showErrorPage(r *ghttp.Request, statusCode int, message string, detail stri
 	// 渲染错误页面
 	htmlContent := generateErrorHTML(statusCode, message, detail, js)
 	r.Response.Write(htmlContent)
-}
-
-// logError 记录错误日志
-func logError(ctx context.Context, statusCode int, message string, detail string) {
-	logger := g.Log()
-	logMsg := fmt.Sprintf("错误码: %d, 错误信息: %s", statusCode, message)
-
-	if detail != "" {
-		logMsg += fmt.Sprintf(", 详细信息: %s", detail)
-	}
-
-	// 根据状态码选择日志级别
-	switch {
-	case statusCode >= 500:
-		logger.Error(ctx, logMsg)
-	case statusCode >= 400:
-		logger.Warning(ctx, logMsg)
-	default:
-		logger.Info(ctx, logMsg)
-	}
 }
 
 // generateErrorHTML 生成错误页面HTML
