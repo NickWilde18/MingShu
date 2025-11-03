@@ -1,4 +1,4 @@
-name: MingShu 明枢纽网关编译与 Docker 构建
+name: 网关编译与 Docker 构建
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "v*"
 
 env:
-  IMAGE_NAME: ghcr.io/nickwilde18/mingshu-gateway
+  IMAGE_NAME: ghcr.io/nickwilde18/uniauth-gateway
   MANIFEST_REPO_OWNER: CUHKSZ-ITSO-Dev
   MANIFEST_REPO_NAME: GPT-Cluster
   MANIFEST_DEPLOY_BRANCH: main
@@ -31,17 +31,14 @@ jobs:
           cache-dependency-path: go.sum
           go-version: "1.25.0"
 
-      - name: Install GoFrame
-        run: go install github.com/gogf/gf/cmd/gf/v2@latest
-
       - name: Build Uniauth
-        run: gf build
+        run: go build -o uniauth-gateway -ldflags="-w -s" main.go
 
       - name: Upload Artifacts 1
         uses: actions/upload-artifact@v4
         with:
-          name: mingshu-gateway
-          path: bin/linux_amd64/mingshu
+          name: uniauth-gateway
+          path: uniauth-gateway
 
   # Job2 构建 Docker 镜像
   build-docker:
@@ -54,8 +51,8 @@ jobs:
       - name: Download binary artifact
         uses: actions/download-artifact@v4
         with:
-          name: mingshu-gateway
-          path: ./bin/mingshu
+          name: uniauth-gateway
+          path: uniauth-gateway
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -77,10 +74,10 @@ jobs:
             type=semver,pattern=v{{major}}
             type=semver,pattern=v{{major}}.{{minor}}
           labels: |
-            org.opencontainers.image.description=MingShu Gateway ({{sha}}).
+            org.opencontainers.image.description=UniAuth Automated System (Gateway, {{sha}}).
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
             org.opencontainers.image.revision={{ sha }}
-            org.opencontainers.image.title=MingShu Gateway
+            org.opencontainers.image.title=UniAuth Gateway
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
