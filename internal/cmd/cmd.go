@@ -40,6 +40,7 @@ var (
 			s.BindHandler("/*", func(r *ghttp.Request) {
 				g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
 				// 规则一，查看请求头请求的服务
+				g.Dump(r)
 				service := r.Header.Get("X-Service")
 				if service == "" {
 					// 规则二，路由匹配，常用于前端SPA的返回
@@ -50,12 +51,12 @@ var (
 						return
 					}
 					service = pathList[1]
+					g.Log().Infof(ctx, "从路径中获取服务名称: %s", service)
 				}
 
 				// 获取服务对应的代理地址
 				proxyHostMap := g.Cfg("mingshu-config").MustData(ctx)
 				proxyHostVar, ok := proxyHostMap[service]
-				g.Dump(g.Cfg("mingshu-config").MustData(ctx))
 				if !ok {
 					g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)
 					r.Response.WriteStatus(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址", service))
