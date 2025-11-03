@@ -5,4 +5,5 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
 
 COPY --chmod=0755 uniauth-gateway .
+
 CMD ["./uniauth-gateway"]
