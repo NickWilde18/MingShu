@@ -32,6 +32,7 @@ var (
 				// return
 			} else {
 				g.Cfg("mingshu-config").SetAdapter(adapter)
+				g.Log().Info(ctx, "从 Kubernetes ConfigMap 初始化配置中心")
 			}
 
 			// 服务器
@@ -40,7 +41,6 @@ var (
 				g.Log().Infof(r.Context(), "请求URL: %s", r.GetUrl())
 				// 规则一，查看请求头请求的服务
 				service := r.Header.Get("X-Service")
-				forwardPath := r.URL.Path
 				if service == "" {
 					// 规则二，路由匹配，常用于前端SPA的返回
 					// 同时去掉前缀
@@ -48,10 +48,6 @@ var (
 					if len(pathList) < 2 || pathList[1] == "" {
 						r.Response.WriteStatus(http.StatusBadRequest, "未获取到服务名称")
 						return
-					}
-					forwardPath = strings.TrimPrefix(r.URL.Path, "/"+pathList[1])
-					if forwardPath == "" {
-						forwardPath = "/"
 					}
 					service = pathList[1]
 				}
@@ -81,7 +77,7 @@ var (
 						// 重写请求的 URL、Host 和 请求头
 						req.URL.Scheme = target.Scheme
 						req.URL.Host = target.Host
-						req.URL.Path = forwardPath
+						req.URL.Path = r.URL.Path
 						req.Host = target.Host
 						req.Header.Set("X-Forwarded-For", req.RemoteAddr)
 
