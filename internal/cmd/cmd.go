@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
 	"github.com/gogf/gf/contrib/config/kubecm/v2"
+	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
@@ -70,7 +70,7 @@ var (
 
 			// 不需要登录验证的路由组
 			s.Group("/auth", func(group *ghttp.RouterGroup) {
-				group.GET("/login", auth.Login)
+				group.GET("/login/*", auth.Login)
 				group.GET("/logout", auth.Logout)
 				group.GET("/callback", auth.Callback)
 			})
