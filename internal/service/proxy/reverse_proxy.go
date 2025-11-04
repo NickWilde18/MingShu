@@ -71,6 +71,9 @@ func ReverseProxy(r *ghttp.Request) {
 				req.Header.Set("X-Forwarded-Proto", "http")
 			}
 
+			// 鉴权信息嵌入
+			req.Header.Set("X-User-ID", r.Session.MustGet("user_id").String())
+
 			g.Log().Infof(r.Context(), `[网关]: %s -> [%s]: %s://%s%s`, r.GetUrl(), service, req.URL.Scheme, req.URL.Host, req.URL.Path)
 		},
 		ModifyResponse: func(resp *http.Response) error {
