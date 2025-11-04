@@ -27,7 +27,7 @@ func ReverseProxy(r *ghttp.Request) {
 	}
 
 	// 获取服务对应的代理地址
-	proxyHostMap := g.Cfg("uniauth-gateway-config").MustData(ctx)
+	proxyHostMap := g.Cfg("proxy_host_map").MustData(ctx)
 	proxyHostVar, ok := proxyHostMap[service]
 	if !ok {
 		g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)
