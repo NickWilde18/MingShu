@@ -16,7 +16,7 @@ func CheckEntryPermission(ctx context.Context, upn string) error {
 	})
 	content := response.Map()
 	g.Dump(content)
-	if !content["success"].(bool){
+	if !content["success"].(bool) {
 		return gerror.New("权限检查失败：" + content["message"].(string))
 	}
 	if !content["data"].(g.Map)["allow"].(bool) {
