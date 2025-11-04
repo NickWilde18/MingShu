@@ -3,7 +3,6 @@ package middlewares
 import (
 	"uniauth-gateway/internal/consts"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
@@ -16,9 +15,7 @@ func VerifyLoginStatus(r *ghttp.Request) {
 		RenderError(r, ErrorInfo{
 			ErrorCode: consts.ErrCodeUnauthorized,
 			CustomMsg: "您尚未登录，系统将在3秒后自动跳转到登录页面...<br>You are not logged in, redirecting to login page in 3 seconds...",
-			CustomData: g.Map{
-				"CustomJS": `setTimeout(function(){window.location.href='/auth/login';},3000);`,
-			},
+			CustomJS:  `setTimeout(function(){window.location.href='/auth/login';},3000);`,
 		})
 		return
 	}

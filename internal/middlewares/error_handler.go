@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	_ "embed"
-	"maps"
 	"time"
 
 	"uniauth-gateway/internal/consts"
@@ -18,13 +17,15 @@ var errorTemplate string
 
 // ErrorInfo 错误信息结构
 type ErrorInfo struct {
-	ErrorCode  int    // 自定义错误代码
-	HTTPStatus int    // HTTP状态码（可选，默认从ErrorCode映射）
-	CustomMsg  string // 自定义消息（可选，会同时显示中英文）
-	Detail     string // 技术详情（可选，仅调试模式显示）
-	TraceID    string // 追踪ID（可选，自动生成）
+	ErrorCode  int // 自定义错误代码，主要由这个决定显示的内容
+	HTTPStatus int // HTTP状态码（可选，默认从ErrorCode映射）
+
+	CustomMsg string // 自定义消息（可选，会同时显示中英文）
+
 	ShowDetail bool   // 是否显示详细信息
-	CustomData g.Map  // 自定义数据（可选）
+	Detail     string // 技术详情（可选，仅调试模式显示）
+
+	CustomJS string // 自定义JavaScript代码（可选），会注入到错误页面的 <script> 标签中
 }
 
 const ctxKeyErrorInfo = "ERROR_INFO"
@@ -35,13 +36,13 @@ func ErrorHandler(r *ghttp.Request) {
 	status := r.Response.Status
 	if status >= 400 && status < 600 {
 		if errorInfo := r.GetCtxVar(ctxKeyErrorInfo); !errorInfo.IsNil() {
-			// 已经处理过错误就不处理了。一般用来兜底
 			return
 		}
-
+		// 没有处理一般就是兜底了
 		message := r.Response.BufferString()
 		r.Response.ClearBuffer()
 
+		// 兜底就按默认的错误码映射
 		errorCode := mapHTTPStatusToErrorCode(status)
 
 		RenderError(r, ErrorInfo{
@@ -56,8 +57,7 @@ func ErrorHandler(r *ghttp.Request) {
 func RenderError(r *ghttp.Request, info ErrorInfo) {
 	ctx := r.GetCtx()
 	r.SetCtxVar(ctxKeyErrorInfo, true)
-	info.TraceID = gctx.CtxId(ctx)
-
+    
 	// 获取错误码配置
 	errorCodeConfig, exists := consts.ErrorCodeMap[info.ErrorCode]
 	if !exists {
@@ -88,14 +88,9 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		"CustomMsg":    info.CustomMsg,
 		"Detail":       info.Detail,
 		"ShowDetail":   showDetail,
-		"TraceID":      info.TraceID,
+		"TraceID":      gctx.CtxId(ctx),
 		"Timestamp":    time.Now().Format("2006-01-02 15:04:05"),
-		"CustomJS":     "", // 默认无自定义JS
-	}
-
-	// 合并自定义数据
-	if info.CustomData != nil {
-		maps.Copy(data, info.CustomData)
+		"CustomJS":     info.CustomJS,
 	}
 
 	// 渲染HTML
@@ -160,33 +155,3 @@ func mapHTTPStatusToErrorCode(httpStatus int) int {
 		return consts.ErrCodeUnknown
 	}
 }
-
-// ┌──────────────────────────────────────────────────────────────┐
-// │                                                              │
-// │                         HTTPStatus                           │
-// │                          TitleZh                             │
-// │                          TitleEn                             │
-// │                                                              │
-// ├──────────────────────────────────────────────────────────────┤
-// │                                                              │
-// │                        MessageZh                             │
-// │                        MessageEn                             │
-// │                                                              │
-// │  ┌──────────────────────────────────────────────────────────┐│
-// │  │                    SuggestionZh                          ││
-// │  │                    SuggestionEn                          ││
-// │  └──────────────────────────────────────────────────────────┘│
-// │                                                              │
-// │  ┌──────────────────────────────────────────────────────────┐│
-// │  │                    ErrorReason（动态）                   ││
-// │  └──────────────────────────────────────────────────────────┘│
-// │                                                              │
-// │  ┌─────────────────────┬─────────────────────┬──────────────┐│
-// │  │      TraceID        │         Code        │     Time     ││
-// │  │   (复制图标)        │                     │              ││
-// │  └─────────────────────┴─────────────────────┴──────────────┘│
-// │                                                              │
-// │                   [ HomeButton ]   [ RetryButton ]           │
-// │                                                              │
-// └──────────────────────────────────────────────────────────────┘
-//                      SystemFooter（非结构体字段）
