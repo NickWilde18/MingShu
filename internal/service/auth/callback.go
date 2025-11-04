@@ -7,6 +7,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/golang-jwt/jwt/v5"
+
+	"uniauth-gateway/internal/service/uniGf"
 )
 
 func Callback(r *ghttp.Request) {
@@ -56,8 +58,17 @@ func Callback(r *ghttp.Request) {
 	}
 
 	// 先看upn存不存在
+	if err = uniGf.ExistUPN(ctx, upn.(string)); err != nil {
+		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+	}
 	// 再看upn有没有权限进入
+	if err = uniGf.CheckEntryPermission(ctx, upn.(string)); err != nil {
+		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+	}
 	// 最后Ensure QP
+	if err = uniGf.EnsureQP(ctx, upn.(string)); err != nil {
+		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+	}
 
 	// 记录 Session
 	r.Session.RegenerateId(true)
