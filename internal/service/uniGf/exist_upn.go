@@ -3,16 +3,31 @@ package uniGf
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 // ExistUPN 检查 UPN 是否存在
 func ExistUPN(ctx context.Context, upn string) error {
-	response := client.GetVar(ctx, "/userinfos", g.Map{
+	response, err := client.Get(ctx, "/userinfos", g.Map{
 		"upn": upn,
 	})
-	content := response.Map()
+	if err != nil {
+		return gerror.Wrap(err, "调用用户信息API失败")
+	}
+	defer response.Close()
+
+	if response.StatusCode != 200 {
+		return gerror.Newf("用户信息API返回错误状态码: %d", response.StatusCode)
+	}
+
+	responseBody := response.ReadAll()
+	jsonObj, err := gjson.DecodeToJson(responseBody)
+	if err != nil {
+		return gerror.Wrap(err, "解析API响应失败")
+	}
+	content := jsonObj.Map()
 	g.Dump(content)
 	if !content["success"].(bool) {
 		return gerror.New(

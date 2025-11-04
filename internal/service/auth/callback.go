@@ -57,6 +57,7 @@ func Callback(r *ghttp.Request) {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.New("JWT 中没有 upn 字段"))
 	}
 
+	g.Log().Infof(ctx, "upn: %s", upn)
 	// 先看upn存不存在
 	if err = uniGf.ExistUPN(ctx, upn.(string)); err != nil {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
