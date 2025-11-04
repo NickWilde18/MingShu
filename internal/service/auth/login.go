@@ -3,6 +3,8 @@ package auth
 import (
 	"embed"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -15,6 +17,22 @@ var tplContent string
 
 //go:embed dist
 var folder embed.FS
+
+func getContentType(filename string) string {
+	ext := strings.ToLower(filepath.Ext(filename))
+	switch ext {
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".png":
+		return "image/png"
+	case ".html":
+		return "text/html"
+	default:
+		return "application/octet-stream"
+	}
+}
 
 // LoginHandler 统一处理登录页面和静态资源
 func Login(r *ghttp.Request) {
@@ -42,5 +60,10 @@ func Login(r *ghttp.Request) {
 	if err != nil {
 		r.Response.WriteStatusExit(http.StatusNotFound, "文件不存在")
 	}
+
+	// 设置正确的 Content-Type
+	contentType := getContentType(filePath)
+	r.Response.Header().Set("Content-Type", contentType)
+
 	r.Response.Write(content)
 }
