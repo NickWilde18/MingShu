@@ -57,7 +57,7 @@ func ErrorHandler(r *ghttp.Request) {
 func RenderError(r *ghttp.Request, info ErrorInfo) {
 	ctx := r.GetCtx()
 	r.SetCtxVar(ctxKeyErrorInfo, true)
-    
+
 	// 获取错误码配置
 	errorCodeConfig, exists := consts.ErrorCodeMap[info.ErrorCode]
 	if !exists {
@@ -112,10 +112,11 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 	data["TraceIDShort"] = traceIDShort
 
 	// 使用 GoFrame 模板引擎渲染
-	err := r.Response.WriteTpl(errorTemplate, data)
+	err := r.Response.WriteTplContent(errorTemplate, data)
 	if err != nil {
 		// 如果模板渲染失败，返回一个简单的错误页面
 		g.Log().Error(ctx, "Error rendering template:", err)
+        r.Response.ClearBuffer()
 		r.Response.Write("错误页面模板渲染错误，错误信息：" + err.Error())
 	}
 }
