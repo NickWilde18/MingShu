@@ -14,8 +14,10 @@ func CheckEntryPermission(ctx context.Context, upn string) error {
 		"obj": "platform",
 		"act": "entry",
 	})
+	if response.IsNil() || response.IsEmpty() {
+		return gerror.New("入口权限检查：内部请求没有响应或返回内容为空")
+	}
 	content := response.Map()
-	g.Dump(content)
 	if !content["success"].(bool) {
 		return gerror.New("权限检查失败：" + content["message"].(string))
 	}
