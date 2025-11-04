@@ -12,6 +12,7 @@ func EnsureQP(ctx context.Context, upn string) error {
 		"upn": upn,
 	})
 	content := response.Map()
+	g.Dump(content)
 	if !content["success"].(bool) {
 		return gerror.New("个人配额池存在性检查失败：" + content["message"].(string))
 	}
