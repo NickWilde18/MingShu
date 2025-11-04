@@ -1,8 +1,9 @@
 package middlewares
 
 import (
-	"net/http"
+	"uniauth-gateway/internal/consts"
 
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
@@ -11,21 +12,13 @@ func VerifyLoginStatus(r *ghttp.Request) {
 	// 验证登录状态
 	userID, err := r.Session.Get("user_id")
 	if err != nil || userID.IsNil() {
-		// 使用自定义 JS 实现自动跳转到登录页面
+		// 使用自定义错误页面，带自动跳转功能
 		RenderError(r, ErrorInfo{
-			Code:    http.StatusUnauthorized,
-			Message: "您尚未登录，<a href='/auth/login'>点击这里登录</a>，或等待自动跳转...",
-			CustomJS: `
-// 3秒后自动跳转到登录页面
-var countdown = 3;
-var timer = setInterval(function() {
-    countdown--;
-    if (countdown <= 0) {
-        clearInterval(timer);
-        window.location.href = '/auth/login';
-    }
-}, 1000);
-`,
+			ErrorCode: consts.ErrCodeUnauthorized,
+			CustomMsg: "您尚未登录，系统将在3秒后自动跳转到登录页面...<br>You are not logged in, redirecting to login page in 3 seconds...",
+			CustomData: g.Map{
+				"CustomJS": `setTimeout(function(){window.location.href='/auth/login';},3000);`,
+			},
 		})
 		return
 	}

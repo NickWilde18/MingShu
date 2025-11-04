@@ -1,182 +1,192 @@
 package middlewares
 
 import (
-	"fmt"
-	"net/http"
-	"strings"
+	_ "embed"
+	"maps"
+	"time"
 
+	"uniauth-gateway/internal/consts"
+
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/text/gstr"
 )
+
+//go:embed error.tpl
+var errorTemplate string
 
 // ErrorInfo 错误信息结构
 type ErrorInfo struct {
-	Code     int
-	Message  string
-	Detail   string // 详细信息（可选）
-	CustomJS string // 自定义 JavaScript 代码（可选）
+	ErrorCode  int    // 自定义错误代码
+	HTTPStatus int    // HTTP状态码（可选，默认从ErrorCode映射）
+	CustomMsg  string // 自定义消息（可选，会同时显示中英文）
+	Detail     string // 技术详情（可选，仅调试模式显示）
+	TraceID    string // 追踪ID（可选，自动生成）
+	ShowDetail bool   // 是否显示详细信息
+	CustomData g.Map  // 自定义数据（可选）
 }
 
-// 上下文中存储自定义错误信息的 key
 const ctxKeyErrorInfo = "ERROR_INFO"
 
-// ErrorHandler 最外层错误处理中间件
-// 捕获所有错误并显示友好的错误页面
 func ErrorHandler(r *ghttp.Request) {
-	// 继续处理请求
 	r.Middleware.Next()
 
-	// 检查响应状态码，如果是错误状态码则显示错误页面
 	status := r.Response.Status
 	if status >= 400 && status < 600 {
-		// 尝试从上下文中获取自定义错误信息
 		if errorInfo := r.GetCtxVar(ctxKeyErrorInfo); !errorInfo.IsNil() {
-			// Handler 已经调用了 RenderError，不再处理
+			// 已经处理过错误就不处理了。一般用来兜底
 			return
 		}
 
-		// 获取已写入的响应内容作为错误消息
 		message := r.Response.BufferString()
-		if message == "" {
-			message = http.StatusText(status)
-		}
-
-		// 清空响应缓冲区
 		r.Response.ClearBuffer()
 
-		// 显示错误页面
-		showErrorPage(r, status, message, "")
+		errorCode := mapHTTPStatusToErrorCode(status)
+
+		RenderError(r, ErrorInfo{
+			ErrorCode:  errorCode,
+			HTTPStatus: status,
+			Detail:     message,
+		})
 	}
 }
 
-// RenderError 主动渲染错误页面（供 Handler 调用）
-// 使用场景：需要更详细的错误信息或自定义错误展示
+// RenderError 渲染错误页面
 func RenderError(r *ghttp.Request, info ErrorInfo) {
-	// 标记已处理，避免中间件重复处理
+	ctx := r.GetCtx()
 	r.SetCtxVar(ctxKeyErrorInfo, true)
+	info.TraceID = gctx.CtxId(ctx)
 
-	// 如果没有设置状态码，默认使用 500
-	if info.Code == 0 {
-		info.Code = http.StatusInternalServerError
+	// 获取错误码配置
+	errorCodeConfig, exists := consts.ErrorCodeMap[info.ErrorCode]
+	if !exists {
+		errorCodeConfig = consts.ErrorCodeMap[consts.ErrCodeUnknown]
+		info.ErrorCode = consts.ErrCodeUnknown
 	}
 
-	// 如果没有设置消息，使用标准 HTTP 状态文本
-	if info.Message == "" {
-		info.Message = http.StatusText(info.Code)
+	// 设置HTTP状态码
+	if info.HTTPStatus == 0 {
+		info.HTTPStatus = errorCodeConfig.HTTPStatus
+	}
+	r.Response.Status = info.HTTPStatus
+
+	// 检查是否为调试模式
+	debugMode := g.Cfg().MustGet(ctx, "server.debug", false).Bool()
+	showDetail := info.ShowDetail || debugMode
+
+	// 构建模板数据
+	data := g.Map{
+		"ErrorCode":    info.ErrorCode,
+		"HTTPStatus":   info.HTTPStatus,
+		"TitleZh":      errorCodeConfig.TitleZh,
+		"TitleEn":      errorCodeConfig.TitleEn,
+		"MessageZh":    errorCodeConfig.MessageZh,
+		"MessageEn":    errorCodeConfig.MessageEn,
+		"SuggestionZh": errorCodeConfig.SuggestionZh,
+		"SuggestionEn": errorCodeConfig.SuggestionEn,
+		"CustomMsg":    info.CustomMsg,
+		"Detail":       info.Detail,
+		"ShowDetail":   showDetail,
+		"TraceID":      info.TraceID,
+		"Timestamp":    time.Now().Format("2006-01-02 15:04:05"),
+		"CustomJS":     "", // 默认无自定义JS
 	}
 
-	// 清空已有响应缓冲区
-	r.Response.ClearBuffer()
+	// 合并自定义数据
+	if info.CustomData != nil {
+		maps.Copy(data, info.CustomData)
+	}
 
-	// 渲染错误页面
-	showErrorPage(r, info.Code, info.Message, info.Detail, info.CustomJS)
-}
-
-// showErrorPage 显示错误页面
-func showErrorPage(r *ghttp.Request, statusCode int, message string, detail string, customJS ...string) {
-	// 设置响应头
+	// 渲染HTML
 	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	r.Response.Status = statusCode
 
-	// 获取自定义 JS（可选参数）
-	js := ""
-	if len(customJS) > 0 {
-		js = customJS[0]
+	// 处理错误原因
+	reasonText := ""
+	if data["Detail"].(string) != "" && !data["ShowDetail"].(bool) {
+		reasonText = data["Detail"].(string)
 	}
+	data["ReasonText"] = escapeHTML(reasonText)
 
-	// 渲染错误页面
-	htmlContent := generateErrorHTML(statusCode, message, detail, js)
-	r.Response.Write(htmlContent)
-}
-
-// generateErrorHTML 生成错误页面HTML
-func generateErrorHTML(statusCode int, message string, detail string, customJS string) string {
-	html := fmt.Sprintf(`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>%d %s</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-        padding-top: 50px;
-    }
-    h1 {
-        font-size: 1.5em;
-        font-weight: normal;
-        margin: 0 0 0.5em 0;
-        padding: 0;
-    }
-    p {
-        margin: 0.5em 0;
-        line-height: 1.6;
-    }
-    a {
-        color: #06c;
-        text-decoration: none;
-    }
-    a:hover {
-        text-decoration: underline;
-    }
-    .detail {
-        margin-top: 1.5em;
-        padding: 10px;
-        background-color: #f0f0f0;
-        border-left: 3px solid #999;
-        font-size: 0.9em;
-        color: #666;
-    }
-    hr {
-        border: 0;
-        border-top: 1px solid #ccc;
-        margin: 1.5em 0;
-    }
-    .footer {
-        margin-top: 2em;
-        font-size: 0.9em;
-        color: #999;
-    }
-</style>
-%s
-</head>
-<body>
-<h1>%d %s</h1>
-<p>%s</p>
-%s
-<hr>
-<p class="footer">香港中文大学（深圳）GPT服务统一鉴权系统</p>
-</body>
-</html>`, statusCode, http.StatusText(statusCode), generateCustomJSSection(customJS), statusCode, http.StatusText(statusCode), message, generateDetailSection(detail))
-
-	return html
-}
-
-// generateCustomJSSection 生成自定义 JS 部分
-func generateCustomJSSection(customJS string) string {
-	if customJS == "" {
-		return ""
+	// TraceID - 只显示前16位，悬停显示完整ID 32位
+	traceID := data["TraceID"].(string)
+	traceIDShort := traceID
+	if len(traceID) > 16 {
+		traceIDShort = traceID[:16] + "..."
 	}
-	return fmt.Sprintf("<script>\n%s\n</script>", customJS)
-}
+	data["TraceIDShort"] = traceIDShort
 
-// generateDetailSection 生成详细信息部分
-func generateDetailSection(detail string) string {
-	if detail == "" {
-		return ""
+	// 使用 GoFrame 模板引擎渲染
+	err := r.Response.WriteTpl(errorTemplate, data)
+	if err != nil {
+		// 如果模板渲染失败，返回一个简单的错误页面
+		g.Log().Error(ctx, "Error rendering template:", err)
+		r.Response.Write("错误页面模板渲染错误，错误信息：" + err.Error())
 	}
-	return fmt.Sprintf(`<div class="detail">
-<strong>详细信息：</strong><br>%s
-</div>`, escapeHTML(detail))
 }
 
-// escapeHTML 简单的HTML转义
+// escapeHTML 转义HTML特殊字符，防止XSS攻击
 func escapeHTML(s string) string {
-	s = strings.ReplaceAll(s, "&", "&amp;")
-	s = strings.ReplaceAll(s, "<", "&lt;")
-	s = strings.ReplaceAll(s, ">", "&gt;")
-	s = strings.ReplaceAll(s, "\"", "&quot;")
-	s = strings.ReplaceAll(s, "'", "&#39;")
+	s = gstr.Replace(s, "&", "&amp;")
+	s = gstr.Replace(s, "<", "&lt;")
+	s = gstr.Replace(s, ">", "&gt;")
+	s = gstr.Replace(s, "\"", "&quot;")
+	s = gstr.Replace(s, "'", "&#39;")
 	return s
 }
+
+// mapHTTPStatusToErrorCode 将HTTP状态码映射到自定义错误代码
+func mapHTTPStatusToErrorCode(httpStatus int) int {
+	switch httpStatus {
+	case 400:
+		return consts.ErrCodeBadRequest
+	case 401:
+		return consts.ErrCodeUnauthorized
+	case 403:
+		return consts.ErrCodeForbidden
+	case 404:
+		return consts.ErrCodeNotFound
+	case 405:
+		return consts.ErrCodeMethodNotAllowed
+	case 500:
+		return consts.ErrCodeInternalServer
+	case 502:
+		return consts.ErrCodeBadGateway
+	case 503:
+		return consts.ErrCodeServiceUnavailable
+	case 504:
+		return consts.ErrCodeTimeout
+	default:
+		return consts.ErrCodeUnknown
+	}
+}
+
+// ┌──────────────────────────────────────────────────────────────┐
+// │                                                              │
+// │                         HTTPStatus                           │
+// │                          TitleZh                             │
+// │                          TitleEn                             │
+// │                                                              │
+// ├──────────────────────────────────────────────────────────────┤
+// │                                                              │
+// │                        MessageZh                             │
+// │                        MessageEn                             │
+// │                                                              │
+// │  ┌──────────────────────────────────────────────────────────┐│
+// │  │                    SuggestionZh                          ││
+// │  │                    SuggestionEn                          ││
+// │  └──────────────────────────────────────────────────────────┘│
+// │                                                              │
+// │  ┌──────────────────────────────────────────────────────────┐│
+// │  │                    ErrorReason（动态）                   ││
+// │  └──────────────────────────────────────────────────────────┘│
+// │                                                              │
+// │  ┌─────────────────────┬─────────────────────┬──────────────┐│
+// │  │      TraceID        │         Code        │     Time     ││
+// │  │   (复制图标)        │                     │              ││
+// │  └─────────────────────┴─────────────────────┴──────────────┘│
+// │                                                              │
+// │                   [ HomeButton ]   [ RetryButton ]           │
+// │                                                              │
+// └──────────────────────────────────────────────────────────────┘
+//                      SystemFooter（非结构体字段）
