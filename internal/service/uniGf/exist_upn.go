@@ -19,7 +19,7 @@ func ExistUPN(ctx context.Context, upn string) error {
 		return gerror.New("校验用户信息：内部请求没有响应或返回内容为空")
 	}
 	content := response.Map()
-	if content["success"].(bool) {
+	if !content["success"].(bool) {
 		r := g.RequestFromCtx(ctx)
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeForbidden,

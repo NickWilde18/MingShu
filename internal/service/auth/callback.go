@@ -38,7 +38,11 @@ func Callback(r *ghttp.Request) {
 	_, ok := response["error"]
 	if ok {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.Newf(
-			"因为以下原因，SSO认证失败，请重试。<br/>SSO authentication failed due to the following reason. Please try again.<br/><br/>错误/Error: %s<br/><br/>错误描述/Error Description: %s",
+			`因为以下原因，SSO认证失败，请重试。
+SSO authentication failed due to the following reason. Please try again.
+
+错误/Error: %s
+错误描述/Error Description: %s`,
 			response["error"],
 			response["error_description"],
 		))
@@ -47,7 +51,8 @@ func Callback(r *ghttp.Request) {
 	accessToken, ok := response["access_token"]
 	if !ok {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.New(
-			"SSO认证信息返回信息中没有Access Token。这通常不是你的问题，请联系管理员检查日志。<br/>Can not get your access token. This is usually not your issue. Please contact the administrator to check the logs.",
+			`SSO认证信息返回信息中没有Access Token。这通常不是你的问题，请联系管理员检查日志。
+Can not get your access token. This is usually not your issue. Please contact the administrator to check the logs.`,
 		))
 	}
 
@@ -64,11 +69,11 @@ func Callback(r *ghttp.Request) {
 	g.Log().Infof(ctx, "upn: %s", upn)
 	// 先看upn存不存在
 	if err = uniGf.ExistUPN(ctx, upn.(string)); err != nil {
-		r.Response.WriteStatusExit(http.StatusForbidden, err)
+		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 再看upn有没有权限进入
 	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "entry"); err != nil {
-		r.Response.WriteStatusExit(http.StatusForbidden, err)
+		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 最后Ensure QP
 	if err = uniGf.EnsureQP(ctx, upn.(string)); err != nil {
