@@ -67,7 +67,7 @@ func Callback(r *ghttp.Request) {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 再看upn有没有权限进入
-	if err = uniGf.CheckEntryPermission(ctx, upn.(string)); err != nil {
+	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "entry"); err != nil {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 最后Ensure QP

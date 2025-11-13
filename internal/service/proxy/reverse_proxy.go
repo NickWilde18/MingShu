@@ -11,6 +11,8 @@ import (
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	
+	"uniauth-gateway/internal/service/uniGf"
 )
 
 //go:embed GPTServices.png
@@ -39,6 +41,12 @@ func ReverseProxy(r *ghttp.Request) {
 			r.Response.WriteStatusExit(http.StatusBadRequest, "未获取到服务名称")
 		}
 		service = pathList[1]
+	}
+
+	// 检查微服务权限
+	if err := uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "entry"); err != nil {
+		r.Response.WriteStatusExit(http.StatusForbidden, err)
+		return
 	}
 
 	// 获取服务对应的代理地址
