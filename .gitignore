@@ -18,3 +18,4 @@ temp.yaml
 bin
 **/config/*
 node_modules
+.parcel-cache/
