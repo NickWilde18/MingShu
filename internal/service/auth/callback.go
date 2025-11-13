@@ -13,7 +13,11 @@ import (
 
 func Callback(r *ghttp.Request) {
 	state := r.Get("state").String()
-	if oState, err := r.Session.Get("state"); err != nil || oState.IsNil() || oState.String() != state {
+	oState, err := r.Session.Get("state")
+	if removeErr := r.Session.Remove("state"); removeErr != nil {
+		g.Log().Errorf(r.Context(), "清除 Session 失败: %v", removeErr.Error())
+	}
+	if err != nil || oState.IsNil() || oState.String() != state {
 		r.Response.WriteStatusExit(http.StatusUnauthorized, "State 不存在或校验不通过")
 	}
 	code := r.Get("code").String()
