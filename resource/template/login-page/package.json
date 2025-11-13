@@ -1,0 +1,22 @@
+{
+  "name": "login-page",
+  "version": "1.0.0",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
+    "parcel": "^2.11.0",
+    "tailwindcss": "^4.1.4"
+  },
+  "scripts": {
+    "dev": "parcel src/login.html --public-url /auth/login/",
+    "build": "parcel build src/login.html --public-url /auth/login/ --dist-dir ../../../internal/service/auth/login --no-source-maps"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "svgo": "^3.3.2"
+  }
+}

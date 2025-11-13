@@ -1,0 +1,185 @@
+/* ========================================
+   背景效果样式 - Background Effects Styles
+   ======================================== */
+
+/* CSS变量定义 */
+:root {
+  /* 主题切换过渡效果 */
+  --theme-transition-duration: 0.5s; /* 稍微延长过渡时间以获得更平滑的效果 */
+  --theme-transition-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  /* 动画时长 */
+  --stars-move-duration: 25s;
+  --stars-move-slow-duration: 35s;
+  --twinkle-duration: 3s;
+  --twinkle-slow-duration: 4s;
+  
+  /* 背景尺寸 */
+  --stars-bg-size-primary: 400px 120px;
+  --stars-bg-size-secondary: 450px 140px;
+  
+  /* 星星效果颜色 */
+  --star-primary: rgba(139, 92, 246, 0.8);
+  --star-secondary: rgba(59, 130, 246, 0.6);
+  --star-tertiary: rgba(6, 182, 212, 0.7);
+  --star-white: rgba(255, 255, 255, 0.9);
+}
+
+/* ========================================
+   主背景容器
+   ======================================== */
+.theme-bg-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+#light-theme-bg-container {
+  opacity: 1; /* 浅色模式下默认显示 */
+  background: 
+    radial-gradient(ellipse 55% 40% at 35% 35%, rgba(139, 92, 246, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 33% at 80% 62%, rgba(59, 130, 246, 0.12) 0%, transparent 85%),
+    radial-gradient(ellipse 100% 80% at 50% 110%, rgba(6, 182, 212, 0.08) 0%, transparent 100%),
+    linear-gradient(70deg, 
+      rgba(224, 188, 243, 1) 0%, 
+      rgb(222, 199, 233) 20%, 
+      rgba(147, 222, 239, 1) 100%
+    );
+}
+
+#dark-theme-bg-container {
+  opacity: 0; /* 浅色模式下默认隐藏 */
+  background: rgb(21, 22, 24, 1);
+}
+
+/* 暗黑模式下背景容器的透明度控制 */
+.dark #light-theme-bg-container {
+  opacity: 0;
+}
+
+.dark #dark-theme-bg-container {
+  opacity: 1;
+}
+
+/* ========================================
+   星星粒子效果 (应用于两个背景容器)
+   ======================================== */
+
+/* 第一层星星效果 */
+.theme-bg-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, var(--star-primary), transparent),
+    radial-gradient(2px 2px at 40px 70px, var(--star-secondary), transparent),
+    radial-gradient(1px 1px at 90px 40px, var(--star-tertiary), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(139, 92, 246, 0.5), transparent),
+    radial-gradient(2px 2px at 160px 30px, var(--star-primary), transparent),
+    radial-gradient(1px 1px at 200px 60px, var(--star-secondary), transparent),
+    radial-gradient(1px 1px at 240px 90px, var(--star-tertiary), transparent),
+    radial-gradient(2px 2px at 280px 20px, rgba(59, 130, 246, 0.5), transparent),
+    radial-gradient(1px 1px at 320px 50px, var(--star-primary), transparent),
+    radial-gradient(2px 2px at 360px 80px, var(--star-secondary), transparent);
+  background-repeat: repeat;
+  background-size: var(--stars-bg-size-primary);
+  /* 初始透明度，由父容器控制显示 */
+  opacity: 0.8; 
+  animation: 
+    stars-move var(--stars-move-duration) linear infinite, 
+    twinkle var(--twinkle-duration) ease-in-out infinite;
+  transition: 
+    opacity var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 第二层星星效果 */
+.theme-bg-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 60px 20px, var(--star-white), transparent),
+    radial-gradient(1px 1px at 120px 50px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 180px 80px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 220px 10px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 300px 40px, var(--star-white), transparent),
+    radial-gradient(1px 1px at 340px 70px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 380px 100px, rgba(255, 255, 255, 0.8), transparent);
+  background-repeat: repeat;
+  background-size: var(--stars-bg-size-secondary);
+  /* 初始透明度，由父容器控制显示 */
+  opacity: 0.6; 
+  animation: 
+    stars-move-slow var(--stars-move-slow-duration) linear infinite reverse, 
+    twinkle var(--twinkle-slow-duration) ease-in-out infinite 1s;
+  transition: 
+    opacity var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* ========================================
+   暗黑模式星星效果增强 (特定于暗色背景容器)
+   ======================================== */
+
+/* 暗黑模式第一层星星 - 隐藏效果 (仅针对 #dark-theme-bg-container) */
+#dark-theme-bg-container::before {
+  background-image: none;
+  opacity: 1; /* 在暗黑模式下，如果需要显示，则由父容器的 opacity 控制 */
+}
+
+/* 暗黑模式第二层星星 - 增强白色粒子 (仅针对 #dark-theme-bg-container) */
+#dark-theme-bg-container::after {
+  background-image: 
+    radial-gradient(1px 1px at 60px 20px, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(1px 1px at 120px 50px, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 180px 80px, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(1px 1px at 220px 10px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 300px 40px, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(1px 1px at 340px 70px, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 380px 100px, rgba(255, 255, 255, 1), transparent);
+  opacity: 0.8; /* 在暗黑模式下，如果需要显示，则由父容器的 opacity 控制 */
+}
+
+/* ========================================
+   动画定义
+   ======================================== */
+
+/* 星星移动动画 */
+@keyframes stars-move {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(-400px) translateY(-120px);
+  }
+}
+
+/* 星星慢速移动动画 */
+@keyframes stars-move-slow {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(-450px) translateY(-140px);
+  }
+}
+
+/* 星星闪烁动画 */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3; /* 星星自身的闪烁透明度 */
+  }
+  50% {
+    opacity: 1;   /* 星星自身的闪烁透明度 */
+  }
+}

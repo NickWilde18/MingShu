@@ -63,6 +63,7 @@ var (
 			// 不需要登录验证的路由组
 			s.Group("/auth", func(group *ghttp.RouterGroup) {
 				group.GET("/login/*", auth.Login)
+				group.GET("/login-legacy/*", auth.LoginLegacy)
 				group.GET("/logout", auth.Logout)
 				group.GET("/callback", auth.Callback)
 			})

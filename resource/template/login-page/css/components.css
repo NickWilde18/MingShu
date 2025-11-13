@@ -1,0 +1,638 @@
+/* ========================================
+   组件样式 - Component Styles
+   ======================================== */
+
+/* CSS变量定义 */
+:root {
+  /* 导航栏颜色 */
+  --nav-bg-light: rgba(255, 255, 255, 0.1);
+  --nav-bg-dark: rgba(0, 0, 0, 0.2);
+  --nav-border-light: rgba(255, 255, 255, 0.2);
+  --nav-border-dark: rgba(255, 255, 255, 0.1);
+  
+  /* 渐变边框颜色 */
+  --gradient-primary: rgba(89, 70, 207, 1);
+  --gradient-primary-light: rgba(89, 70, 207, 0.2);
+  --gradient-primary-dark: rgba(89, 70, 207, 0.3);
+  --gradient-secondary: rgba(97, 39, 156, 1);
+  --gradient-tertiary: rgb(184, 180, 255);
+  
+  /* 背景颜色 */
+  --bg-mask-light: rgba(255, 255, 255, 0.9);
+  --bg-mask-dark: rgba(0, 0, 0, 0.9);
+  --bg-text-light: rgb(222, 220, 255);
+  --bg-text-dark: rgba(0, 0, 0, 0.85);
+  
+  /* 按钮颜色 */
+  --btn-bg-light: rgba(255, 255, 255, 0.765);
+  --btn-bg-hover-light: rgba(222, 222, 222, 0.8);
+  --btn-overlay-light: rgba(255, 255, 255, 0.3);
+  --btn-overlay-dark: rgba(255, 255, 255, 0.2);
+  
+  /* 主题切换颜色 */
+  --theme-light-color: #8b5cf6;
+  --theme-dark-color: #3b82f6;
+  
+  /* 统一的动画时长 - 主题切换专用 */
+  --theme-transition-duration: 0.3s;
+  --theme-transition-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  /* 其他动画时长 */
+  --transition-fast: 0.2s;
+  --transition-normal: var(--theme-transition-duration);
+  --transition-slow: 0.5s;
+  
+  /* 边框半径 */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  
+  /* 间距 */
+  --spacing-xs: 0.375rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+    --border-radius-xl: 12px;
+  }
+}
+
+/* ========================================
+   导航栏样式 - Navigation Styles
+   ======================================== */
+
+/* 主导航栏 */
+.main-navigation {
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--nav-bg-light);
+  border-bottom: 1px solid var(--nav-border-light);
+}
+
+.dark .main-navigation {
+  background: var(--nav-bg-dark);
+  border-bottom: 1px solid var(--nav-border-dark);
+}
+
+/* 导航栏选择器 */
+.main-navigation select {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+  min-width: 80px;
+  font-size: 0.75rem;
+  padding-right: var(--spacing-xl);
+}
+
+.main-navigation select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+/* 导航栏按钮 */
+.main-navigation button {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* ========================================
+   响应式导航栏 - Responsive Navigation
+   ======================================== */
+
+/* 移动端导航栏优化 */
+@media (max-width: 640px) {
+  .main-navigation .nav-container {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+  
+  .main-navigation .nav-brand-text {
+    display: none; /* 在小屏幕上隐藏大学名称 */
+  }
+  
+  .main-navigation .nav-controls {
+    gap: var(--spacing-sm);
+  }
+  
+  .main-navigation .language-label {
+    display: none; /* 在小屏幕上隐藏"语言"文字 */
+  }
+  
+  .main-navigation select {
+    min-width: 80px;
+    font-size: 0.75rem;
+    padding-right: var(--spacing-xl);
+  }
+  
+  .main-navigation button {
+    padding: var(--spacing-xs);
+  }
+  
+  .main-navigation svg {
+    width: var(--spacing-md);
+    height: var(--spacing-md);
+  }
+  
+  /* 移动端箭头大小调整 */
+  .gradient-border-select:has(select)::after {
+    right: 0.5rem;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid var(--gradient-primary);
+  }
+  
+  .dark .gradient-border-select:has(select)::after {
+    border-top-color: rgba(202, 202, 218, 1);
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+  .main-navigation .nav-header {
+    height: 3.5rem;
+  }
+}
+
+/* ========================================
+   模态框动画 - Modal Animations
+   ======================================== */
+
+/* 模态框进入动画 */
+.modal-enter {
+  animation: modal-enter-animation var(--transition-normal) ease-out forwards;
+}
+
+/* 模态框离开动画 */
+.modal-leave {
+  animation: modal-leave-animation var(--transition-fast) ease-in forwards;
+}
+
+@keyframes modal-enter-animation {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modal-leave-animation {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+/* ========================================
+   主题切换样式 - Theme Switch Styles
+   ======================================== */
+
+.theme-switch-light {
+  color: var(--theme-light-color);
+}
+
+.theme-switch-dark {
+  color: var(--theme-dark-color);
+}
+
+/* ========================================
+   渐变边框组件 - Gradient Border Components
+   ======================================== */
+
+/* 渐变边框选择器 */
+.gradient-border-select {
+  position: relative;
+  border-radius: var(--border-radius-md);
+  background: linear-gradient(125deg, var(--gradient-primary), var(--gradient-primary-light));
+  padding: 2px; /* 控制边框宽度 */
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 遮罩层 */
+.gradient-border-select::before {
+  content: '';
+  position: absolute;
+  inset: 2px; /* 与 padding 保持一致 */
+  border-radius: var(--border-radius-sm); /* 稍小于外层圆角 */
+  background: var(--bg-mask-light);
+  z-index: 1;
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.dark .gradient-border-select::before {
+  background: rgba(89, 70, 207, 0.2);
+}
+
+/* 选择器元素样式 */
+.gradient-border-select select {
+  position: relative;
+  z-index: 2;
+  /* 隐藏默认的下拉箭头 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* 为自定义箭头留出空间 */
+  padding-right: 2.5rem;
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 选择器展开选项样式优化 */
+.gradient-border-select select option {
+  background: rgba(255, 255, 255, 0.95);
+  color: rgba(51, 51, 51, 1);
+  padding: 8px 12px;
+  border: none;
+  transition: all var(--transition-fast) ease;
+}
+
+.gradient-border-select select option:hover,
+.gradient-border-select select option:focus {
+  background: rgba(89, 70, 207, 0.1);
+  color: rgba(89, 70, 207, 1);
+}
+
+
+/* 针对不同浏览器的选择器下拉框背景优化 */
+.dark .gradient-border-select select {
+  background: rgba(89, 70, 207, 0.2) !important;
+  color: rgba(202, 202, 218, 1) !important;
+  border: 1px solid rgba(89, 70, 207, 0.3) !important;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(89, 70, 207, 0.5) rgba(30, 30, 40, 0.3);
+}
+
+/* Webkit浏览器的滚动条样式 */
+.dark .gradient-border-select select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark .gradient-border-select select::-webkit-scrollbar-track {
+  background: rgba(30, 30, 40, 0.3);
+  border-radius: 4px;
+}
+
+.dark .gradient-border-select select::-webkit-scrollbar-thumb {
+  background: rgba(89, 70, 207, 0.5);
+  border-radius: 4px;
+  transition: background var(--transition-fast) ease;
+}
+
+.dark .gradient-border-select select::-webkit-scrollbar-thumb:hover {
+  background: rgba(89, 70, 207, 0.7);
+}
+
+/* 按钮元素样式 */
+.gradient-border-select button {
+  position: relative;
+  z-index: 2;
+  /* 确保按钮背景不被伪元素覆盖 */
+  background: var(--gradient-primary-light) !important;
+}
+
+/* 自定义下拉箭头 */
+.select-arrow {
+  position: absolute;
+  top: 50%;
+  right: 1.2rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: opacity var(--theme-transition-duration) var(--theme-transition-easing), 
+              transform var(--theme-transition-duration) var(--theme-transition-easing),
+              color var(--theme-transition-duration) var(--theme-transition-easing);
+  color: var(--gradient-primary);
+  z-index: 3;
+}
+
+/* 深色模式箭头 */
+.dark .select-arrow {
+  color: rgba(202, 202, 218, 1);
+}
+
+/* 深色模式按钮背景 */
+.dark .gradient-border-select button {
+  background: var(--gradient-primary-dark) !important;
+}
+
+/* 交互状态 */
+.gradient-border-select:focus-within {
+  background: linear-gradient(135deg, var(--gradient-primary), var(--gradient-primary-light));
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.gradient-border-select:hover {
+  background: linear-gradient(135deg, rgba(89, 70, 207, 0.8), var(--gradient-primary-light));
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 深色模式交互状态 */
+.dark .gradient-border-select {
+  background: linear-gradient(135deg, rgba(89, 70, 207, 0.6), var(--gradient-primary-light));
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.dark .gradient-border-select:focus-within {
+  background: linear-gradient(135deg, rgba(89, 70, 207, 0.8), var(--gradient-primary-light));
+}
+
+.dark .gradient-border-select:hover {
+  background: linear-gradient(135deg, rgba(89, 70, 207, 0.7), var(--gradient-primary-light));
+}
+
+/* 移动端箭头调整 */
+@media (max-width: 640px) {
+  .select-arrow {
+    width: 0.75rem;
+    height: 0.75rem;
+    right: 0.5rem;
+    stroke-width: 2.2;
+  }
+}
+
+/* ========================================
+   文本渐变边框 - Text Gradient Border
+   ======================================== */
+
+.gradient-border-text {
+  position: relative;
+  border-radius: var(--border-radius-xl);
+  background: linear-gradient(270deg, var(--gradient-secondary), var(--gradient-tertiary));
+  padding: 3px;
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 文本遮罩层 */
+.gradient-border-text::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 13px;
+  background: var(--bg-text-light);
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.dark .gradient-border-text::before {
+  background: var(--bg-text-dark);
+}
+
+/* 文本元素层级 */
+.gradient-border-text > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* 悬停效果 */
+.gradient-border-text:hover::after {
+  opacity: 1;
+}
+
+/* 深色模式文本边框 */
+.dark .gradient-border-text {
+  background: linear-gradient(135deg, var(--gradient-secondary), rgba(237, 236, 255, 1));
+  transition: background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.dark .gradient-border-text::after {
+  background: linear-gradient(135deg, rgba(237, 236, 255, 1), var(--gradient-secondary));
+}
+
+/* 响应式文本边框 */
+@media (max-width: 640px) {
+  .gradient-border-text {
+    border-radius: var(--border-radius-lg);
+    padding: 2px;
+  }
+  
+  .gradient-border-text::before {
+    inset: 2px;
+    border-radius: 10px;
+  }
+  
+  .gradient-border-text::after {
+    border-radius: var(--border-radius-lg);
+  }
+}
+
+/* ========================================
+   按钮样式 - Button Styles
+   ======================================== */
+
+/* 渐变悬停按钮 */
+.btn-gradient-hover {
+  position: relative;
+  background: var(--btn-bg-light);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+  border: none;
+  overflow: hidden;
+  /* 确保div按钮能够正常工作 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.btn-gradient-hover:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 深色模式按钮 */
+.dark .btn-gradient-hover {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.dark .btn-gradient-hover::before {
+  background: linear-gradient(180deg, var(--btn-overlay-light) 0%, rgba(255, 255, 255, 0.1) 100%);
+}
+
+/* 浅色模式下的文字渐变保持原样 */
+.btn-gradient-hover div {
+  background: linear-gradient(180deg, rgba(85, 24, 175, 1), rgba(111, 14, 127, 1));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* 深色模式下的文字渐变 */
+.dark .btn-gradient-hover div {
+    background: white;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* ========================================
+   向后兼容性 - Backward Compatibility
+   ======================================== */
+
+/* 保持原有类名以确保兼容性 */
+nav {
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--nav-bg-light);
+  border-bottom: 1px solid var(--nav-border-light);
+}
+
+.dark nav {
+  background: var(--nav-bg-dark);
+  border-bottom: 1px solid var(--nav-border-dark);
+}
+
+nav select {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+  min-width: 80px;
+  font-size: 0.9rem;
+  padding-right: var(--spacing-xl);
+}
+
+nav select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+nav button {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+@media (max-width: 640px) {
+  nav .max-w-7xl {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+  
+  nav .ml-3 {
+    display: none;
+  }
+  
+  nav .space-x-4 {
+    gap: var(--spacing-sm);
+  }
+  
+  nav span[data-i18n="language-selector"] {
+    display: none;
+  }
+  
+  nav select {
+    min-width: 80px;
+    font-size: 0.75rem;
+    padding-right: var(--spacing-xl);
+  }
+  
+  nav button {
+    padding: var(--spacing-xs);
+  }
+  
+  .gradient-border-select:has(select)::after {
+    right: 0.5rem;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid var(--gradient-primary);
+  }
+  
+  .dark .gradient-border-select:has(select)::after {
+    border-top-color: rgba(202, 202, 218, 1);
+  }
+}
+
+.animate-modal-enter {
+  animation: modalEnter var(--transition-normal) ease-out forwards;
+}
+
+.animate-modal-leave {
+  animation: modalLeave var(--transition-fast) ease-in forwards;
+}
+
+@keyframes modalEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalLeave {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+.switch-light {
+  color: var(--theme-light-color);
+}
+
+.switch-dark {
+  color: var(--theme-dark-color);
+}
+
+/* 针对不同操作系统的选择器下拉框样式 */
+@supports (-webkit-appearance: none) {
+  .dark .gradient-border-select select {
+    /* macOS/iOS Safari 优化 */
+    -webkit-appearance: none;
+    background-image: none !important;
+  }
+}
+
+@supports (-moz-appearance: none) {
+  .dark .gradient-border-select select {
+    /* Firefox 优化 */
+    -moz-appearance: none;
+    background-image: none !important;
+  }
+}
+
+/* Windows 系统特殊优化 */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .dark .gradient-border-select select option {
+    background: #2a2a3a !important;
+    color: #e5e5e5 !important;
+  }
+}
+
+/* 移动端黑暗模式选择器优化 */
+@media (max-width: 768px) {
+  .dark .gradient-border-select select option {
+    padding: 12px 16px;
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+}

@@ -1,0 +1,77 @@
+/* Install Tailwind CSS V4 with Parcel */
+/* https://tailwindcss.com/docs/installation/framework-guides/parcel */
+@import "tailwindcss";
+
+/* Tailwind CSS V4 Dark Mode allows manual toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 自定义颜色变量 */
+:root {
+  /* 主品牌色 - 紫色系 */
+  --primary-50: #f5f3ff;
+  --primary-100: #ede9fe;
+  --primary-200: #ddd6fe;
+  --primary-300: #c4b5fd;
+  --primary-400: #a78bfa;
+  --primary-500: #8b5cf6;
+  --primary-600: #7c3aed;
+  --primary-700: #6d28d9;
+  --primary-800: #5b21b6;
+  --primary-900: #4c1d95;
+  --primary-950: #2e1065;
+  
+  /* 背景色 */
+  --bg-light: #fafafa;
+  --bg-dark: #0f0f23;
+  --bg-card-light: rgba(255, 255, 255, 0.85);
+  --bg-card-dark: rgba(30, 30, 60, 0.85);
+  
+  /* 文本色 */
+  --text-primary-light: #1f2937;
+  --text-primary-dark: #f9fafb;
+  --text-secondary-light: #6b7280;
+  --text-secondary-dark: #d1d5db;
+  --text-muted-light: #9ca3af;
+  --text-muted-dark: #9ca3af;
+  
+  /* 边框色 */
+  --border-light: rgba(255, 255, 255, 0.6);
+  --border-dark: rgba(75, 85, 180, 0.6);
+}
+
+/* 自定义工具类 */
+.bg-background-dark { background-color: var(--bg-dark); }
+.bg-background-card-dark { background-color: var(--bg-card-dark); }
+.text-text-primary-light { color: var(--text-primary-light); }
+.text-text-primary-dark { color: var(--text-primary-dark); }
+.text-text-secondary-light { color: var(--text-secondary-light); }
+.text-text-secondary-dark { color: var(--text-secondary-dark); }
+.text-text-muted-light { color: var(--text-muted-light); }
+.text-text-muted-dark { color: var(--text-muted-dark); }
+.border-border-light { border-color: var(--border-light); }
+.border-border-dark { border-color: var(--border-dark); }
+.ring-primary-500\/10 { --tw-ring-color: rgba(139, 92, 246, 0.1); }
+.ring-primary-800 { --tw-ring-color: var(--primary-800); }
+.bg-primary-100\/50 { background-color: rgba(237, 233, 254, 0.5); }
+.bg-primary-800\/50 { background-color: rgba(91, 33, 182, 0.5); }
+.bg-primary-700\/50 { background-color: rgba(109, 40, 217, 0.5); }
+.bg-primary-600 { background-color: var(--primary-600); }
+.bg-primary-700 { background-color: var(--primary-700); }
+.hover\:bg-primary-700:hover { background-color: var(--primary-700); }
+.hover\:bg-primary-100\/50:hover { background-color: rgba(237, 233, 254, 0.5); }
+.hover\:bg-primary-800\/50:hover { background-color: rgba(91, 33, 182, 0.5); }
+.hover\:bg-primary-700\/50:hover { background-color: rgba(109, 40, 217, 0.5); }
+
+/* 阴影效果 */
+.shadow-card { 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+}
+.shadow-card-dark { 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+}
+.shadow-glow { 
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); 
+}
+.shadow-glow-dark { 
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); 
+}

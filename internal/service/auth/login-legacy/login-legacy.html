@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang=zh-CN><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>GPT Services Platform</title><link rel=icon href=/auth/login-legacy/CUSZ-02logo-RGB-square.d8b043ba.png type=image/png><link href=/auth/login-legacy/login-legacy.036d22cf.css rel=stylesheet><link href=/auth/login-legacy/login-legacy.80fd9161.css rel=stylesheet><link href=/auth/login-legacy/login-legacy.ca0b6a15.css rel=stylesheet><style>html,body{width:100%;height:100%;min-height:100%;font-family:PingFang SC,Microsoft YaHei,Source Han Sans SC,Source Han Sans CN,Noto Sans CJK SC,sans-serif;overflow-x:hidden}@media (height<=700px){.adapt-small-height{padding-top:.75rem;padding-bottom:.75rem}.logo-small-height{width:5rem;height:5rem;margin-bottom:.5rem}.title-small-height{margin-bottom:.25rem;font-size:1.5rem}.subtitle-small-height{margin-bottom:1rem;font-size:1rem}.button-small-height{padding:.5rem 1rem;font-size:1rem}.card-small-height{padding-top:1rem;padding-bottom:1rem;min-height:auto!important}.header-small-height{padding:.375rem 1rem;top:.5rem}}@media (width>=1024px) and (height<=650px){.main-container{padding-top:1rem;padding-bottom:1rem}}.main-title{background:linear-gradient(#080808 0%,#57515b 100%) text;font-weight:600;transition:all .3s cubic-bezier(.4,0,.2,1)}.dark .main-title{background:linear-gradient(#fff 0%,#9fa0a7 100%) text}@media (width<=768px){.main-title{transition:none}}.sub-title{background:linear-gradient(90deg,#5518af,#6f0e7f) text;font-weight:500;transition:all .3s cubic-bezier(.4,0,.2,1)}.dark .sub-title{color:#fff;background:linear-gradient(90deg,#fff,#fff) text}.language-label{color:#5846ce;transition:color .3s cubic-bezier(.4,0,.2,1)}.dark .language-label{color:#cacada!important}.language-select{color:#5946cf;background:#5946cf33;font-weight:600;transition:all .3s cubic-bezier(.4,0,.2,1)}.dark .language-select{color:#cacada;background:#5946cf33}.mobile-language-button{color:#5946cf;background:#5946cf33;transition:all .3s cubic-bezier(.4,0,.2,1)}.dark .mobile-language-button{background:#5946cf33;color:#cacada!important}.mobile-language-button:hover,.dark .mobile-language-button:hover{background:#5946cf4d}.top-decoration-circle{opacity:1;z-index:1;pointer-events:none;background:linear-gradient(220deg,#e2d4ff 0% 60%,#b9acfef2 90%,#b0a1fff2 100%);border:1px solid #8173df;border-radius:50%;width:160vw;height:160vw;transition:all .3s cubic-bezier(.4,0,.2,1);position:absolute;top:-147.5vw;left:-30vw;box-shadow:inset 0 -20px 24px #12031626,0 16px 32px #ffffff52}.dark .top-decoration-circle{background:linear-gradient(#6f519480 0%,#41285bf2 100%);border:1px solid #8173df;box-shadow:inset 0 -20px 24px #ffffff26,0 16px 32px #873ed252}@media (width<=768px){.top-decoration-circle{width:300vw;height:300vw;top:-265vw;left:-100vw}}.login-button{color:#000;background:linear-gradient(#efefef 0%,#d5e3ff 100%);transition:all .3s cubic-bezier(.4,0,.2,1)}.login-button:hover{background:linear-gradient(#fff 0%,#dbe7fe 100%)}.dark .login-button{background-blend-mode:normal;background:linear-gradient(160.29deg,#8f63f2 20%,#30c7cf 100%),#ffffff80}.dark .login-button:hover{background:linear-gradient(160.29deg,#9d77f4 20%,#58d2d8 100%),#ffffff80}</style><body class="bg-white dark:bg-background-dark flex flex-col min-h-screen overflow-hidden relative" style="font-family:PingFang SC,Microsoft YaHei,Source Han Sans SC,Source Han Sans CN,Noto Sans CJK SC,sans-serif;transition:all .3s cubic-bezier(.4,0,.2,1)">
+  
+  <div id=light-theme-bg-container class=theme-bg-container></div>
+  <div id=dark-theme-bg-container class=theme-bg-container></div>
+
+  
+  <div class=top-decoration-circle></div>
+
+  
+  <nav class="backdrop-blur-lg bg-white/20 border-b border-white/20 dark:bg-black/20 dark:border-white/10 fixed h-16 left-0 right-0 top-0 z-50">
+    <div class="h-full lg:px-16 max-w-full mx-auto px-4 sm:px-6">
+      <div class="flex h-full items-center justify-between">
+        
+        <div class="flex items-center">
+          
+          <img src=/auth/login-legacy/light-logo.1db45258.png alt="CUHK-Shenzhen Logo" class="block dark:hidden h-5 md:h-8 object-contain">
+          
+          <img src=/auth/login-legacy/dark-logo.295fda62.png alt="CUHK-Shenzhen Logo" class="dark:block h-5 hidden md:h-8 object-contain">
+        </div>
+
+        
+        <div class="flex items-center md:space-x-4 space-x-2">
+          
+          <div class="hidden items-center md:flex space-x-2">
+            <span data-i18n=language-selector class="font-medium language-label text-sm">语言 Language</span>
+            
+            <div class="gradient-border-select h-10 w-36">
+              <select id=language-select class="backdrop-blur-sm bg-transparent border-0 dark:text-text-primary-dark focus:bg-transparent h-full language-select min-w-[100px] outline-none px-6 py-1 rounded-md text-text-primary-light w-full">
+              </select>
+            </div>
+          </div>
+
+          
+          <div class="flex gradient-border-select h-8 md:h-10 md:hidden md:w-10 w-8" id=mobile-language-toggle>
+            <button class="backdrop-blur-sm bg-transparent flex h-full items-center justify-center md:rounded-md mobile-language-button p-2 rounded-sm w-full" title=切换语言>
+              
+              <svg xmlns:xmlns=http://www.w3.org/2000/svg width=20 height=20 fill=none class="block h-4 w-4" viewBox="0 0 24 24"><path fill=currentColor d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11ZM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2Zm-2.62 7 1.62-4.33L19.12 17Z"/></svg>
+            </button>
+          </div>
+
+          
+          <div class="gradient-border-select h-8 md:h-10 md:w-10 w-8" id=theme-toggle>
+            <button class="backdrop-blur-sm bg-transparent flex h-full items-center justify-center md:rounded-md p-2 rounded-sm w-full" style="color:#5946cf;background:#5946cf33;transition:all .3s cubic-bezier(.4,0,.2,1)" title=切换日/夜模式>
+              
+              <svg xmlns:xmlns=http://www.w3.org/2000/svg width=20 height=20 fill=none class="block dark:hidden h-4 w-4" viewBox="0 0 16.085 18"><path fill=#5946cf d="M9 18a8.98 8.98 0 0 0 6.991-3.332.422.422 0 0 0-.406-.68c-4.367.83-8.377-2.517-8.377-6.925 0-2.539 1.36-4.874 3.569-6.131a.422.422 0 0 0-.132-.782A9 9 0 0 0 0 9a9 9 0 0 0 9 9"/></svg>
+              
+              <svg xmlns:xmlns=http://www.w3.org/2000/svg width=20 height=20 fill=none class="dark:block h-5 hidden w-5" viewBox="0 0 19.997 19.997"><path fill=#cacada fill-rule=evenodd d="M9.21 3.2V0h1.58v3.2a7 7 0 0 0-1.58 0m-6.84.29 2.27 2.26a6.8 6.8 0 0 1 1.11-1.11L3.49 2.37Zm11.878 1.15c.414.328.793.697 1.12 1.11l2.26-2.26-1.12-1.12ZM4.737 9.998a5.266 5.266 0 0 0 5.26 5.27 5.275 5.275 0 0 0 5.27-5.27 5.266 5.266 0 0 0-5.27-5.26 5.26 5.26 0 0 0-5.26 5.26M0 9.21v1.58h3.2a7 7 0 0 1 0-1.58Zm16.797 0c.06.525.06 1.056 0 1.58h3.2V9.21ZM2.37 16.508l1.12 1.12 2.26-2.26a7 7 0 0 1-1.11-1.12Zm11.878-1.14 2.26 2.26 1.12-1.12-2.26-2.26a7 7 0 0 1-1.12 1.12M9.21 16.797v3.2h1.58v-3.2c-.523.06-1.054.06-1.58 0"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  
+  <div id=main-screen class="bg-transparent flex flex-1 flex-col h-[100vh] items-center justify-center">
+    
+    <main class="flex flex-1 flex-col items-center justify-center lg:py-16 main-container md:py-8 min-h-[100vh] py-4 sm:py-12 w-full">
+      
+      <h1 data-i18n=login-title class="2xl:text-8xl dark:text-text-primary-dark lg:mb-1 lg:mt-60 lg:text-5xl main-title mb-2 md:mb-2 md:mt-24 md:py-1 md:text-6xl mt-0 px-4 py-4 sm:px-0 sm:text-5xl text-5xl text-center text-text-primary-light tracking-wide xl:mb-8 xl:mt-60 xl:py-4 xl:text-7xl z-10">
+        让我们预见未来</h1>
+
+      
+      <div class="lg:mb-10 mb-12 md:py-1 px-6 py-0 xl:mb-16 xl:py-3">
+        <h2 data-i18n=login-subtitle class="md:text-xl sm:text-xl sub-title text-center text-lg xl:text-2xl z-10">
+          大学GPT服务平台</h2>
+      </div>
+
+      
+      <div class="inline-block relative">
+        <div onclick=handleLogin() class="border-1 border-white btn-gradient-hover cursor-pointer flex items-center justify-center lg:px-28 lg:py-3 login-button mb-14 md:mb-12 md:rounded-2xl min-w-[200px] px-24 py-3 relative rounded-lg sm:py-4 sm:text-2xl text-xl xl:mb-8 xl:px-42 xl:py-6 z-10">
+          <div data-i18n=login-button class=font-semibold>登录</div>
+        </div>
+      </div>
+    </main>
+
+    
+    <footer class="h-6 md:pb-24 pb-16 py-4 w-full xl:pb-36">
+      <div class=text-center>
+        <p data-i18n=login-cc class="dark:text-text-muted-dark font-medium sm:text-sm text-text-muted-light text-xs">
+          版权所有 © 2025 香港中文大学（深圳）</p>
+      </div>
+    </footer>
+  </div>
+
+  
+  <div id=disclaimer-modal class="backdrop-blur-sm bg-black/50 fixed flex hidden inset-0 items-center justify-center overflow-y-auto py-4 transition-opacity z-50">
+    <div data-i18n=disclaimer-modal-content class="bg-white/95 border border-border-light dark:bg-background-card-dark dark:border-border-dark dark:shadow-card-dark duration-300 max-w-2xl my-4 opacity-0 origin-center p-4 rounded-xl shadow-card sm:p-6 transition-all w-[95%]">
+      <h1 data-i18n=notice-title class="dark:text-text-primary-dark font-bold sm:text-2xl text-text-primary-light text-xl"></h1>
+      <p data-i18n=notice-content class="dark:text-text-secondary-dark leading-relaxed sm:text-base text-sm text-text-secondary-light"></p>
+      <div class="flex justify-end pt-3 sm:pt-4 sm:space-x-4 space-x-3">
+        <button id=notice-reject data-i18n=notice-reject class="bg-gray-200 cursor-pointer dark:bg-primary-800/50 dark:hover:bg-primary-700/50 dark:text-text-primary-dark hover:bg-gray-300 px-4 py-1.5 rounded-lg sm:px-6 sm:py-2 sm:text-base text-gray-700 text-sm transition-colors"></button>
+        <button id=notice-accept data-i18n=notice-accept class="bg-primary-600 cursor-pointer hover:bg-primary-700 px-4 py-1.5 rounded-lg shadow-glow sm:px-6 sm:py-2 sm:text-base text-sm text-white transition-colors"></button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id=browser-warning-modal class="backdrop-blur-sm bg-black/50 fixed flex hidden inset-0 items-center justify-center overflow-y-auto py-4 transition-opacity z-50">
+    <div class="bg-white/95 border border-border-light dark:bg-background-card-dark dark:border-border-dark dark:shadow-card-dark duration-300 max-w-2xl my-4 opacity-0 origin-center p-4 rounded-xl shadow-card sm:p-6 transition-all w-[95%]">
+      <div class="flex items-center mb-4">
+        
+        <svg fill=currentColor class="h-8 mr-3 text-yellow-500 w-8" viewBox="0 0 20 20"><path fill-rule=evenodd d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98ZM11 13a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-1-8a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0V6a1 1 0 0 0-1-1" clip-rule=evenodd /></svg>
+        
+        
+      </div>
+
+      <div class=mb-4>
+        <p data-i18n=browser-warning-content class="dark:text-text-secondary-dark leading-relaxed mb-3 sm:text-base text-sm text-text-secondary-light">
+          检测到您正在使用较旧版本的浏览器，这可能会影响您的使用体验。为了获得最佳体验，建议您升级到以下浏览器的最新版本：</p>
+
+        <ul class="dark:text-text-secondary-dark leading-relaxed ml-4 sm:text-base space-y-1 text-sm text-text-secondary-light">
+          <li data-i18n=browser-chrome>• Chrome 120 或更高版本</li>
+          <li data-i18n=browser-firefox>• Firefox 128 或更高版本</li>
+          <li data-i18n=browser-safari>• Safari 16.4 或更高版本</li>
+          <li data-i18n=browser-edge>• Microsoft Edge 120 或更高版本</li>
+        </ul>
+
+        <p data-i18n=browser-warning-note class="dark:text-text-muted-dark mt-3 text-sm text-text-muted-light">
+          您仍然可以继续使用当前浏览器，但某些功能可能无法正常工作。</p>
+      </div>
+
+      <div class="flex justify-end pt-3 sm:pt-4 sm:space-x-4 space-x-3">
+        <button id=browser-warning-dismiss data-i18n=browser-warning-dismiss class="bg-gray-200 cursor-pointer dark:bg-primary-800/50 dark:hover:bg-primary-700/50 dark:text-text-primary-dark hover:bg-gray-300 px-4 py-1.5 rounded-lg sm:px-6 sm:py-2 sm:text-base text-gray-700 text-sm transition-colors">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script>function jumpToAI(){localStorage.setItem("noticeAccepted","true"),window.location.href="https://sts.cuhk.edu.cn/adfs/oauth2/authorize?client_id={{ client_id | safe }}&response_type=code&redirect_uri={{ redirect_url | safe }}&resource={{ resource | safe }}&state={{ state | safe }}"}function handleLogin(){jumpToAI()}document.addEventListener("DOMContentLoaded",()=>{window.loadLang&&loadLang("login");let e=document.getElementById("mobile-language-toggle"),t=document.getElementById("language-select");e&&t&&e.addEventListener("click",()=>{try{e.querySelector("button");let n=t.value||"zh-CN",o=Array.from(t.options).map(e=>e.value),a=(o.indexOf(n)+1)%o.length,l=o[a];t.value=l;let c=new Event("change",{bubbles:!0});t.dispatchEvent(c),console.log(`\u{8BED}\u{8A00}\u{5DF2}\u{5207}\u{6362}: ${n} -> ${l}`)}catch(e){console.error("语言切换失败:",e)}})});</script>
+
+  
+  <script>!function(){function e(){let e=document.getElementById("browser-warning-modal");if(e){let t=e.querySelector("div > div");t&&(t.style.opacity="0",t.style.transform="scale(0.95)"),setTimeout(()=>{e.classList.add("hidden")},300)}}document.addEventListener("DOMContentLoaded",function(){let t=document.getElementById("browser-warning-dismiss");t&&t.addEventListener("click",e);let n=document.getElementById("browser-warning-modal");n&&n.addEventListener("click",function(t){t.target===n&&e()})})}();</script>
+
+  <script type=module src=/auth/login-legacy/login-legacy.47b65548.js></script>
+  <script src=/auth/login-legacy/login-legacy.2e3ccb99.js></script>
+  <script src=/auth/login-legacy/login-legacy.4189c818.js></script>
+
+

@@ -1,0 +1,44 @@
+name: 登录页面静态编译检查
+
+on:
+  pull_request:
+    paths:
+      - "resource/template/login-page/**"
+      - "resource/template/login-legacy/**"
+
+jobs:
+  build-login-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies and build static
+        working-directory: ./resource/template/login-page
+        run: |
+          rm -rf node_modules package-lock.json .parcel-cache
+          npm install
+          PARCEL_WORKERS=0 npm run build
+
+  build-login-legacy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies and build static
+        working-directory: ./resource/template/login-legacy
+        run: |
+          rm -rf node_modules package-lock.json .parcel-cache
+          npm install
+          PARCEL_WORKERS=0 npm run build
