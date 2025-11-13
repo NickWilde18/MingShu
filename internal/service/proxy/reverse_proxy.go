@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
@@ -30,8 +31,12 @@ func ReverseProxy(r *ghttp.Request) {
 		// 规则二，路由匹配，常用于前端SPA的返回
 		pathList := strings.Split(r.URL.Path, "/")
 		if len(pathList) < 2 || pathList[1] == "" {
-			r.Response.WriteStatus(http.StatusBadRequest, "未获取到服务名称")
-			return
+			// 规则三，判断配置是否允许找不到服务时自动重定向到 /chat/
+			if g.Cfg().MustGet(ctx, "server.allowAutoRedirectToChat", gvar.New(false)).Bool() {
+				r.Response.RedirectTo("/chat/")
+				return
+			}
+			r.Response.WriteStatusExit(http.StatusBadRequest, "未获取到服务名称")
 		}
 		service = pathList[1]
 	}

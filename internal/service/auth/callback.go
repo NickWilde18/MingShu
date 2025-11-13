@@ -25,13 +25,13 @@ func Callback(r *ghttp.Request) {
 
 	response := g.Client().ContentType("application/x-www-form-urlencoded; charset=utf-8").PostVar(
 		ctx,
-		g.Cfg().MustGet(ctx, "sso.token_url").String(),
+		g.Cfg().MustGet(ctx, "sso.tokenUrl").String(),
 		g.Map{
-			"client_id":     g.Cfg().MustGet(ctx, "sso.client_id").String(),
+			"client_id":     g.Cfg().MustGet(ctx, "sso.clientId").String(),
 			"code":          code,
-			"redirect_uri":  g.Cfg().MustGet(ctx, "sso.redirect_uri").String(),
+			"redirect_uri":  g.Cfg().MustGet(ctx, "sso.redirectUri").String(),
 			"grant_type":    "authorization_code",
-			"client_secret": g.Cfg().MustGet(ctx, "sso.client_secret").String(),
+			"client_secret": g.Cfg().MustGet(ctx, "sso.clientSecret").String(),
 		},
 	).Map()
 
@@ -78,5 +78,5 @@ func Callback(r *ghttp.Request) {
 	// 记录 Session
 	r.Session.RegenerateId(true)
 	r.Session.Set("user_id", upn.(string))
-	r.Response.RedirectTo("/uniauth/")
+	r.Response.RedirectTo("/chat/")
 }
