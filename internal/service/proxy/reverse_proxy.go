@@ -103,7 +103,7 @@ func ReverseProxy(r *ghttp.Request) {
 			// 记录响应状态和 Location
 			if resp.StatusCode >= 300 && resp.StatusCode < 400 {
 				location := resp.Header.Get("Location")
-				g.Log().Infof(r.Context(), `[上游返回重定向] Status=%d, Location=%s`, resp.StatusCode, location)
+				g.Log().Infof(r.Context(), `[%s 上游返回重定向] Status=%d, Location=%s。请求URL: %s`, service, resp.StatusCode, location, r.URL.String())
 			}
 			return nil
 		},
