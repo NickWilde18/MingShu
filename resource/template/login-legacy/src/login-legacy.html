@@ -422,7 +422,7 @@
     // 跳转函数，必须放这里，因为django template
     function jumpToAI() {
       localStorage.setItem("noticeAccepted", "true");
-      window.location.href = `https://sts.cuhk.edu.cn/adfs/oauth2/authorize?client_id={{ client_id | safe }}&response_type=code&redirect_uri={{ redirect_url | safe }}&resource={{ resource | safe }}&state={{ state | safe }}`;
+      window.location.href = `https://sts.cuhk.edu.cn/adfs/oauth2/authorize?client_id={{ .Config.sso.clientId }}&response_type=code&redirect_uri={{ .Config.sso.redirectUri }}&resource={{ .Config.sso.resource }}&state={{ .Session.state }}`;
     }
 
     // 登录按钮的处理函数

@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "parcel src/login.html --public-url /auth/login/",
-    "build": "parcel build src/login.html --public-url /auth/login/ --dist-dir ../../../internal/service/auth/login --no-source-maps"
+    "build": "rm -rf .parcel-cache && parcel build src/login.html --public-url /auth/login/ --dist-dir ../../../internal/service/auth/login --no-source-maps"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

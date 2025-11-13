@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "parcel src/login-legacy.html --public-url /auth/login-legacy",
-    "build": "parcel build src/login-legacy.html --public-url /auth/login-legacy/ --dist-dir ../../../internal/service/auth/login-legacy --no-source-maps"
+    "build": "rm -rf .parcel-cache && parcel build src/login-legacy.html --public-url /auth/login-legacy/ --dist-dir ../../../internal/service/auth/login-legacy --no-source-maps"
   },
   "devDependencies": {
     "postcss": "^8.5.5",
