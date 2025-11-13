@@ -64,11 +64,11 @@ func Callback(r *ghttp.Request) {
 	g.Log().Infof(ctx, "upn: %s", upn)
 	// 先看upn存不存在
 	if err = uniGf.ExistUPN(ctx, upn.(string)); err != nil {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+		r.Response.WriteStatusExit(http.StatusForbidden, err)
 	}
 	// 再看upn有没有权限进入
 	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "entry"); err != nil {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+		r.Response.WriteStatusExit(http.StatusForbidden, err)
 	}
 	// 最后Ensure QP
 	if err = uniGf.EnsureQP(ctx, upn.(string)); err != nil {
