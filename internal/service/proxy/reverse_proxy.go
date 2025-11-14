@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	_ "embed"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -11,21 +10,12 @@ import (
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	
+
 	"uniauth-gateway/internal/service/uniGf"
 )
 
-//go:embed GPTServices.png
-var favicon []byte
-
 func ReverseProxy(r *ghttp.Request) {
 	ctx := r.Context()
-
-	// 特殊判断：全站图标
-	if r.URL.Path == "/favicon.png" {
-		r.Response.Header().Set("Content-Type", "image/png")
-		r.Response.WriteStatusExit(http.StatusOK, favicon)
-	}
 
 	// 规则一，查看请求头请求的服务
 	service := r.Header.Get("X-Service")

@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	_ "embed"
 	"context"
 	"time"
+	"net/http"
 
 	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
 	"github.com/gogf/gf/v2/frame/g"
@@ -16,6 +18,9 @@ import (
 )
 
 var (
+	//go:embed GPTServices.png
+	favicon []byte
+
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
@@ -66,6 +71,10 @@ var (
 				group.GET("/login-legacy/*", auth.LoginLegacy)
 				group.GET("/logout", auth.Logout)
 				group.GET("/callback", auth.Callback)
+				group.GET("/favicon.png", func (r *ghttp.Request) {
+					r.Response.Header().Set("Content-Type", "image/png")
+					r.Response.WriteStatusExit(http.StatusOK, favicon)
+				})
 			})
 
 			// 需要登录验证的路由组
