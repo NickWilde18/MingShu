@@ -29,6 +29,8 @@ var (
 			s := g.Server()
 			// ghttp server 各种特性开启与配置
 			// === 通用配置 ===
+			// 设置客户端最大请求体大小 1 GB
+			s.SetClientMaxBodySize(1024 * 1024 * 1024)
 			// 标记是否是本地环境。
 			local := g.Cfg().MustGet(ctx, "server.local", false).Bool()
 			// 日志等级设置
