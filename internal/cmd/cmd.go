@@ -65,16 +65,18 @@ var (
 			// 全局中间件 - 错误处理
 			s.Use(middlewares.ErrorHandler)
 
+			// 特殊处理 favicon.png
+			s.BindHandler("GET:/favicon.png", func (r *ghttp.Request) {
+				r.Response.Header().Set("Content-Type", "image/png")
+				r.Response.WriteStatusExit(http.StatusOK, favicon)
+			})
+
 			// 不需要登录验证的路由组
 			s.Group("/auth", func(group *ghttp.RouterGroup) {
 				group.GET("/login/*", auth.Login)
 				group.GET("/login-legacy/*", auth.LoginLegacy)
 				group.GET("/logout", auth.Logout)
 				group.GET("/callback", auth.Callback)
-				group.GET("/favicon.png", func (r *ghttp.Request) {
-					r.Response.Header().Set("Content-Type", "image/png")
-					r.Response.WriteStatusExit(http.StatusOK, favicon)
-				})
 			})
 
 			// 需要登录验证的路由组
