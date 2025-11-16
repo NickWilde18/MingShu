@@ -72,7 +72,7 @@ Can not get your access token. This is usually not your issue. Please contact th
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 再看upn有没有权限进入
-	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "entry"); err != nil {
+	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "access"); err != nil {
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 最后Ensure QP

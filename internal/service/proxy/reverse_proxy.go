@@ -34,7 +34,7 @@ func ReverseProxy(r *ghttp.Request) {
 	}
 
 	// 检查微服务权限
-	if err := uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "entry"); err != nil {
+	if err := uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "access"); err != nil {
 		r.Response.WriteStatusExit(http.StatusForbidden, err)
 		return
 	}
