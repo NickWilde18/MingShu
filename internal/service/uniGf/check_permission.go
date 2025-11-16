@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -15,7 +16,7 @@ func CheckPermission(ctx context.Context, sub string, obj string, act string) er
 		"act": act,
 	})
 	if response.IsNil() || response.IsEmpty() {
-		return gerror.New("权限检查：内部请求没有响应或返回内容为空")
+		return gerror.NewCode(gcode.CodeInternalError, "权限检查：统一鉴权内部请求没有响应或返回内容为空")
 	}
 	content := response.Map()
 	if !content["success"].(bool) {

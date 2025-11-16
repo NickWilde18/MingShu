@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -73,6 +74,9 @@ Can not get your access token. This is usually not your issue. Please contact th
 	}
 	// 再看upn有没有权限进入
 	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "access"); err != nil {
+		if gerror.Code(err) == gcode.CodeInternalError {
+			r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+		}
 		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
 	}
 	// 最后Ensure QP

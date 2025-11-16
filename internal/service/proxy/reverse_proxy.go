@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 
@@ -35,6 +37,9 @@ func ReverseProxy(r *ghttp.Request) {
 
 	// 检查微服务权限
 	if err := uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "access"); err != nil {
+		if gerror.Code(err) == gcode.CodeInternalError {
+			r.Response.WriteStatusExit(http.StatusInternalServerError, err)
+		}
 		r.Response.WriteStatusExit(http.StatusForbidden, err)
 		return
 	}
