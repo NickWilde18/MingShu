@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	_ "embed"
 	"context"
-	"time"
+	_ "embed"
 	"net/http"
+	"time"
 
 	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
 	"github.com/gogf/gf/v2/frame/g"
@@ -68,7 +68,7 @@ var (
 			s.Use(middlewares.ErrorHandler)
 
 			// 特殊处理 favicon.png
-			s.BindHandler("GET:/favicon.png", func (r *ghttp.Request) {
+			s.BindHandler("GET:/favicon.png", func(r *ghttp.Request) {
 				r.Response.Header().Set("Content-Type", "image/png")
 				r.Response.WriteStatusExit(http.StatusOK, favicon)
 			})
