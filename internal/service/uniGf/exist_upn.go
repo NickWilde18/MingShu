@@ -23,7 +23,6 @@ func ExistUPN(ctx context.Context, upn string) error {
 		r := g.RequestFromCtx(ctx)
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeForbidden,
-			ShowDetail: true,
 			Detail: `无法查找到你的AD域信息。这通常不是你的问题。
 如果您是新入职/入学的人员，请在1天后再登录。
 如您已经入职/入学1天以上，或想立即进入平台，请联系管理员手动同步AD域数据库。

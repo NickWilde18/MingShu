@@ -1,5 +1,7 @@
 package consts
 
+import "net/http"
+
 // 错误代码定义
 // 使用自定义错误代码，便于前后端对接和日志追踪
 const (
@@ -36,34 +38,54 @@ const (
 )
 
 // ErrorCode 错误码结构
-//
 type ErrorCode struct {
-	Code         int    // 自定义错误代码
-	HTTPStatus   int    // HTTP状态码
-	TitleZh      string // 中文标题
-	TitleEn      string // 英文标题
-	MessageZh    string // 中文消息
-	MessageEn    string // 英文消息
-	SuggestionZh string // 中文建议
-	SuggestionEn string // 英文建议
+	Code          int    // 自定义错误代码
+	HTTPStatus    int    // HTTP状态码
+	TitleZh       string // 中文标题
+	TitleEn       string // 英文标题
+	MessageZh     string // 中文消息
+	MessageEn     string // 英文消息
+	SuggestionZh  string // 中文建议
+	SuggestionEn  string // 英文建议
+	ButtonLeft    string // 自定义左按钮文本
+	ButtonLeftJS  string // 自定义左按钮JS
+	ButtonRight   string // 自定义右按钮文本
+	ButtonRightJS string // 自定义右按钮JS
+}
+
+// 根据 HTTP 状态码映射默认的错误码
+var DefaultErrorCodeMap = map[int]int{
+	http.StatusInternalServerError: ErrCodeInternalServer,
+	http.StatusServiceUnavailable:  ErrCodeServiceUnavailable,
+	http.StatusRequestTimeout:      ErrCodeTimeout,
+	http.StatusUnauthorized:        ErrCodeUnauthorized,
+	http.StatusForbidden:           ErrCodeForbidden,
+	http.StatusBadRequest:          ErrCodeBadRequest,
+	http.StatusNotFound:            ErrCodeNotFound,
+	http.StatusMethodNotAllowed:    ErrCodeMethodNotAllowed,
+	http.StatusBadGateway:          ErrCodeBadGateway,
 }
 
 // 错误码映射表（中英文一起定义）
 var ErrorCodeMap = map[int]ErrorCode{
 	// 通用错误
 	ErrCodeUnknown: {
-		Code:         ErrCodeUnknown,
-		HTTPStatus:   500,
-		TitleZh:      "未知错误",
-		TitleEn:      "Unknown Error",
-		MessageZh:    "发生了未知错误，请稍后重试。",
-		MessageEn:    "An unknown error occurred. Please try again later.",
-		SuggestionZh: "如果问题持续存在，请携带追踪ID联系技术支持。",
-		SuggestionEn: "If the problem persists, please contact technical support with the trace ID.",
+		Code:          ErrCodeUnknown,
+		HTTPStatus:    http.StatusInternalServerError,
+		TitleZh:       "未知错误",
+		TitleEn:       "Unknown Error",
+		MessageZh:     "发生了未知错误，请稍后重试。",
+		MessageEn:     "An unknown error occurred. Please try again later.",
+		SuggestionZh:  "如果问题持续存在，请携带追踪ID联系技术支持。",
+		SuggestionEn:  "If the problem persists, please contact technical support with the trace ID.",
+		ButtonLeft:    "返回首页",
+		ButtonLeftJS:  "window.location.href = '/';",
+		ButtonRight:   "重试",
+		ButtonRightJS: "window.location.reload();",
 	},
 	ErrCodeInternalServer: {
 		Code:         ErrCodeInternalServer,
-		HTTPStatus:   500,
+		HTTPStatus:   http.StatusInternalServerError,
 		TitleZh:      "内部服务器错误",
 		TitleEn:      "Internal Server Error",
 		MessageZh:    "服务器遇到了意外情况，我们正在努力修复。",
@@ -73,7 +95,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeServiceUnavailable: {
 		Code:         ErrCodeServiceUnavailable,
-		HTTPStatus:   503,
+		HTTPStatus:   http.StatusServiceUnavailable,
 		TitleZh:      "服务不可用",
 		TitleEn:      "Service Unavailable",
 		MessageZh:    "服务因维护或高负载暂时不可用。",
@@ -83,7 +105,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeTimeout: {
 		Code:         ErrCodeTimeout,
-		HTTPStatus:   504,
+		HTTPStatus:   http.StatusRequestTimeout,
 		TitleZh:      "请求超时",
 		TitleEn:      "Request Timeout",
 		MessageZh:    "请求处理时间过长，已超时。",
@@ -95,7 +117,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	// 认证相关
 	ErrCodeUnauthorized: {
 		Code:         ErrCodeUnauthorized,
-		HTTPStatus:   401,
+		HTTPStatus:   http.StatusUnauthorized,
 		TitleZh:      "需要身份验证",
 		TitleEn:      "Authentication Required",
 		MessageZh:    "您需要登录才能访问此资源。",
@@ -105,7 +127,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeSessionExpired: {
 		Code:         ErrCodeSessionExpired,
-		HTTPStatus:   401,
+		HTTPStatus:   http.StatusUnauthorized,
 		TitleZh:      "会话已过期",
 		TitleEn:      "Session Expired",
 		MessageZh:    "出于安全考虑，您的会话已过期。",
@@ -115,7 +137,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeInvalidToken: {
 		Code:         ErrCodeInvalidToken,
-		HTTPStatus:   401,
+		HTTPStatus:   http.StatusUnauthorized,
 		TitleZh:      "无效的令牌",
 		TitleEn:      "Invalid Token",
 		MessageZh:    "身份验证令牌无效或已被篡改。",
@@ -125,7 +147,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeLoginFailed: {
 		Code:         ErrCodeLoginFailed,
-		HTTPStatus:   401,
+		HTTPStatus:   http.StatusUnauthorized,
 		TitleZh:      "登录失败",
 		TitleEn:      "Login Failed",
 		MessageZh:    "无法完成登录流程。",
@@ -135,7 +157,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeLogoutFailed: {
 		Code:         ErrCodeLogoutFailed,
-		HTTPStatus:   500,
+		HTTPStatus:   http.StatusInternalServerError,
 		TitleZh:      "登出失败",
 		TitleEn:      "Logout Failed",
 		MessageZh:    "登出过程中发生错误。",
@@ -145,7 +167,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeCallbackFailed: {
 		Code:         ErrCodeCallbackFailed,
-		HTTPStatus:   500,
+		HTTPStatus:   http.StatusInternalServerError,
 		TitleZh:      "SSO回调失败",
 		TitleEn:      "SSO Callback Failed",
 		MessageZh:    "处理SSO身份验证回调时失败。",
@@ -157,7 +179,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	// 权限相关
 	ErrCodeForbidden: {
 		Code:         ErrCodeForbidden,
-		HTTPStatus:   403,
+		HTTPStatus:   http.StatusForbidden,
 		TitleZh:      "禁止访问",
 		TitleEn:      "Access Forbidden",
 		MessageZh:    "您没有权限访问此资源。",
@@ -167,7 +189,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeNoPermission: {
 		Code:         ErrCodeNoPermission,
-		HTTPStatus:   403,
+		HTTPStatus:   http.StatusForbidden,
 		TitleZh:      "权限不足",
 		TitleEn:      "Insufficient Permissions",
 		MessageZh:    "您缺少执行此操作所需的权限。",
@@ -177,7 +199,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeAccessDenied: {
 		Code:         ErrCodeAccessDenied,
-		HTTPStatus:   403,
+		HTTPStatus:   http.StatusForbidden,
 		TitleZh:      "访问被拒绝",
 		TitleEn:      "Access Denied",
 		MessageZh:    "您对此资源的访问已被拒绝。",
@@ -189,7 +211,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	// 请求相关
 	ErrCodeBadRequest: {
 		Code:         ErrCodeBadRequest,
-		HTTPStatus:   400,
+		HTTPStatus:   http.StatusBadRequest,
 		TitleZh:      "错误的请求",
 		TitleEn:      "Bad Request",
 		MessageZh:    "由于语法或参数无效，请求无法处理。",
@@ -199,7 +221,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeNotFound: {
 		Code:         ErrCodeNotFound,
-		HTTPStatus:   404,
+		HTTPStatus:   http.StatusNotFound,
 		TitleZh:      "页面未找到",
 		TitleEn:      "Page Not Found",
 		MessageZh:    "您访问的页面不存在或已被移动。",
@@ -209,7 +231,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeMethodNotAllowed: {
 		Code:         ErrCodeMethodNotAllowed,
-		HTTPStatus:   405,
+		HTTPStatus:   http.StatusMethodNotAllowed,
 		TitleZh:      "方法不被允许",
 		TitleEn:      "Method Not Allowed",
 		MessageZh:    "此资源不支持使用的HTTP方法。",
@@ -219,7 +241,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeInvalidParameter: {
 		Code:         ErrCodeInvalidParameter,
-		HTTPStatus:   400,
+		HTTPStatus:   http.StatusBadRequest,
 		TitleZh:      "参数无效",
 		TitleEn:      "Invalid Parameter",
 		MessageZh:    "您的请求中包含一个或多个无效参数。",
@@ -231,7 +253,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	// 代理相关
 	ErrCodeProxyFailed: {
 		Code:         ErrCodeProxyFailed,
-		HTTPStatus:   502,
+		HTTPStatus:   http.StatusBadGateway,
 		TitleZh:      "代理错误",
 		TitleEn:      "Proxy Error",
 		MessageZh:    "无法将您的请求代理到上游服务。",
@@ -241,7 +263,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeUpstreamTimeout: {
 		Code:         ErrCodeUpstreamTimeout,
-		HTTPStatus:   504,
+		HTTPStatus:   http.StatusRequestTimeout,
 		TitleZh:      "上游服务超时",
 		TitleEn:      "Upstream Service Timeout",
 		MessageZh:    "上游服务未能及时响应。",
@@ -251,7 +273,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeUpstreamError: {
 		Code:         ErrCodeUpstreamError,
-		HTTPStatus:   502,
+		HTTPStatus:   http.StatusBadGateway,
 		TitleZh:      "上游服务错误",
 		TitleEn:      "Upstream Service Error",
 		MessageZh:    "上游服务返回了错误。",
@@ -261,7 +283,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 	},
 	ErrCodeBadGateway: {
 		Code:         ErrCodeBadGateway,
-		HTTPStatus:   502,
+		HTTPStatus:   http.StatusBadGateway,
 		TitleZh:      "网关错误",
 		TitleEn:      "Bad Gateway",
 		MessageZh:    "网关从上游服务器收到了无效响应。",

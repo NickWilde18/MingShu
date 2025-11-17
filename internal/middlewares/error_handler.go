@@ -17,15 +17,17 @@ var errorTemplate string
 
 // ErrorInfo 错误信息结构
 type ErrorInfo struct {
-	ErrorCode  int // 自定义错误代码，主要由这个决定显示的内容
-	HTTPStatus int // HTTP状态码（可选，默认从ErrorCode映射）
+	// 错误代码，主要由这个决定显示的内容，必须传。
+	ErrorCode int
+	// 对应的错误说明中英文（MessageZH/EN）不允许动态传递。如果要加必须改代码，新增错误码。
+	// 对应的建议中英文（SuggestionZH/EN）不允许动态传递。如果要加必须改代码，新增错误码。
 
-	CustomMsg string // 自定义消息（可选，会同时显示中英文）
-
-	ShowDetail bool   // 是否显示详细信息
-	Detail     string // 技术详情（可选，仅调试模式显示）
-
-	CustomJS string // 自定义JavaScript代码（可选），会注入到错误页面的 <script> 标签中
+	// 报错详情（可选，默认显示。可以在配置文件中开关 showDetail）
+	Detail string
+	// 自定义消息（可选，需要中英文都写好）
+	CustomMsg string
+	// 自定义JavaScript代码（可选），会注入到错误页面的 <script> 标签中
+	CustomJS string
 }
 
 const ctxKeyErrorInfo = "ERROR_INFO"
@@ -33,22 +35,19 @@ const ctxKeyErrorInfo = "ERROR_INFO"
 func ErrorHandler(r *ghttp.Request) {
 	r.Middleware.Next()
 
+	// 错误兜底
 	status := r.Response.Status
 	if status >= 400 && status < 600 {
 		if errorInfo := r.GetCtxVar(ctxKeyErrorInfo); !errorInfo.IsNil() {
 			return
 		}
-		// 没有处理一般就是兜底了
-		message := r.Response.BufferString()
-		r.Response.ClearBuffer()
-
-		// 兜底就按默认的错误码映射
-		errorCode := mapHTTPStatusToErrorCode(status)
-
+		errorCode, exists := consts.DefaultErrorCodeMap[status]
+		if !exists {
+			errorCode = consts.ErrCodeUnknown
+		}
 		RenderError(r, ErrorInfo{
-			ErrorCode:  errorCode,
-			HTTPStatus: status,
-			Detail:     message,
+			ErrorCode: errorCode,
+			Detail:    r.Response.BufferString(),
 		})
 	}
 }
@@ -57,6 +56,28 @@ func ErrorHandler(r *ghttp.Request) {
 func RenderError(r *ghttp.Request, info ErrorInfo) {
 	ctx := r.GetCtx()
 	r.SetCtxVar(ctxKeyErrorInfo, true)
+	r.Response.ClearBuffer()
+	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// 错误模版要求提供：
+	// 1. HTTPStatus
+	// 2. TitleZh
+	// 3. TitleEn
+	// 4. MessageZh
+	// 5. MessageEn
+	// 6. CustomMsg
+	// 7. SuggestionZh
+	// 8. SuggestionEn
+	// 9. Detail
+	// 10. ShowDetail
+	// 11. TraceID
+	// 12. ErrCode
+	// 13. Timestamp
+	// 14. ButtonLeft
+	// 15. ButtonLeftJS
+	// 16. ButtonRight
+	// 17. ButtonRightJS
+	// 18. CustomJS
 
 	// 获取错误码配置
 	errorCodeConfig, exists := consts.ErrorCodeMap[info.ErrorCode]
@@ -65,36 +86,29 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		info.ErrorCode = consts.ErrCodeUnknown
 	}
 
-	// 设置HTTP状态码
-	if info.HTTPStatus == 0 {
-		info.HTTPStatus = errorCodeConfig.HTTPStatus
-	}
-	r.Response.Status = info.HTTPStatus
-
-	// 检查是否为调试模式
-	debugMode := g.Cfg().MustGet(ctx, "server.debug", false).Bool()
-	showDetail := info.ShowDetail || debugMode
-
 	// 构建模板数据
 	data := g.Map{
-		"ErrorCode":    info.ErrorCode,
-		"HTTPStatus":   info.HTTPStatus,
+		"HTTPStatus":   errorCodeConfig.HTTPStatus,
 		"TitleZh":      errorCodeConfig.TitleZh,
 		"TitleEn":      errorCodeConfig.TitleEn,
 		"MessageZh":    errorCodeConfig.MessageZh,
 		"MessageEn":    errorCodeConfig.MessageEn,
 		"SuggestionZh": errorCodeConfig.SuggestionZh,
 		"SuggestionEn": errorCodeConfig.SuggestionEn,
-		"CustomMsg":    info.CustomMsg,
-		"Detail":       info.Detail,
-		"ShowDetail":   showDetail,
-		"TraceID":      gctx.CtxId(ctx),
-		"Timestamp":    time.Now().Format("2006-01-02 15:04:05"),
-		"CustomJS":     info.CustomJS,
-	}
 
-	// 渲染HTML
-	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+		"ShowDetail": g.Cfg().MustGet(ctx, "server.showDetail", true).Bool(),
+		"Detail":     info.Detail,
+		"TraceID":    gctx.CtxId(ctx),
+		"ErrorCode":  errorCodeConfig.Code,
+		"Timestamp":  time.Now().Format("2006-01-02 15:04:05"),
+
+		"CustomMsg":     info.CustomMsg,
+		"CustomJS":      info.CustomJS,
+		"ButtonLeft":    errorCodeConfig.ButtonLeft,
+		"ButtonLeftJS":  errorCodeConfig.ButtonLeftJS,
+		"ButtonRight":   errorCodeConfig.ButtonRight,
+		"ButtonRightJS": errorCodeConfig.ButtonRightJS,
+	}
 
 	// 处理错误原因
 	reasonText := ""
@@ -116,7 +130,7 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 	if err != nil {
 		// 如果模板渲染失败，返回一个简单的错误页面
 		g.Log().Error(ctx, "Error rendering template:", err)
-        r.Response.ClearBuffer()
+		r.Response.ClearBuffer()
 		r.Response.Write("错误页面模板渲染错误，错误信息：" + err.Error())
 	}
 }
@@ -129,30 +143,4 @@ func escapeHTML(s string) string {
 	s = gstr.Replace(s, "\"", "&quot;")
 	s = gstr.Replace(s, "'", "&#39;")
 	return s
-}
-
-// mapHTTPStatusToErrorCode 将HTTP状态码映射到自定义错误代码
-func mapHTTPStatusToErrorCode(httpStatus int) int {
-	switch httpStatus {
-	case 400:
-		return consts.ErrCodeBadRequest
-	case 401:
-		return consts.ErrCodeUnauthorized
-	case 403:
-		return consts.ErrCodeForbidden
-	case 404:
-		return consts.ErrCodeNotFound
-	case 405:
-		return consts.ErrCodeMethodNotAllowed
-	case 500:
-		return consts.ErrCodeInternalServer
-	case 502:
-		return consts.ErrCodeBadGateway
-	case 503:
-		return consts.ErrCodeServiceUnavailable
-	case 504:
-		return consts.ErrCodeTimeout
-	default:
-		return consts.ErrCodeUnknown
-	}
 }
