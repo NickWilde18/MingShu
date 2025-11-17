@@ -137,5 +137,9 @@ func escapeHTML(s string) string {
 	s = gstr.Replace(s, ">", "&gt;")
 	s = gstr.Replace(s, "\"", "&quot;")
 	s = gstr.Replace(s, "'", "&#39;")
+
+	// <br/> 换行允许显示
+	s = gstr.Replace(s, "&lt;br/&gt;", "<br/>")
+	s = gstr.Replace(s, "&lt;br&gt;", "<br/>")
 	return s
 }
