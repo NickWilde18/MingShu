@@ -498,12 +498,16 @@
             {{end}}
             
             <div class="action-buttons">
-                <a href="/" class="btn btn-primary">
-                    返回首页 / Home
+                {{if and .ButtonLeft .ButtonLeftJS}}
+                <a onclick="{{.ButtonLeftJS}}" class="btn btn-primary">
+                    {{.ButtonLeft}}
                 </a>
-                <button onclick="location.reload()" class="btn btn-secondary">
-                    重试 / Retry
+                {{end}}
+                {{if and .ButtonRight .ButtonRightJS}}
+                <button onclick="{{.ButtonRightJS}}" class="btn btn-secondary">
+                    {{.ButtonRight}}
                 </button>
+                {{end}}
             </div>
         </div>
         

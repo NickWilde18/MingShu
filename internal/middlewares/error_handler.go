@@ -2,10 +2,12 @@ package middlewares
 
 import (
 	_ "embed"
+	"net/http"
 	"time"
 
 	"uniauth-gateway/internal/consts"
 
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -71,13 +73,14 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 	// 9. Detail
 	// 10. ShowDetail
 	// 11. TraceID
-	// 12. ErrCode
-	// 13. Timestamp
-	// 14. ButtonLeft
-	// 15. ButtonLeftJS
-	// 16. ButtonRight
-	// 17. ButtonRightJS
-	// 18. CustomJS
+	// 12. TraceIDShort
+	// 13. ErrCode
+	// 14. Timestamp
+	// 15. ButtonLeft
+	// 16. ButtonLeftJS
+	// 17. ButtonRight
+	// 18. ButtonRightJS
+	// 19. CustomJS
 
 	// 获取错误码配置
 	errorCodeConfig, exists := consts.ErrorCodeMap[info.ErrorCode]
@@ -96,11 +99,12 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		"SuggestionZh": errorCodeConfig.SuggestionZh,
 		"SuggestionEn": errorCodeConfig.SuggestionEn,
 
-		"ShowDetail": g.Cfg().MustGet(ctx, "server.showDetail", true).Bool(),
-		"Detail":     info.Detail,
-		"TraceID":    gctx.CtxId(ctx),
-		"ErrorCode":  errorCodeConfig.Code,
-		"Timestamp":  time.Now().Format("2006-01-02 15:04:05"),
+		"ShowDetail":   g.Cfg().MustGet(ctx, "server.showDetail", true).Bool(),
+		"Detail":       escapeHTML(info.Detail),
+		"TraceID":      gctx.CtxId(ctx),
+		"TraceIDShort": gctx.CtxId(ctx)[:7] + "...",
+		"ErrorCode":    errorCodeConfig.Code,
+		"Timestamp":    time.Now().Format("2006-01-02 15:04:05"),
 
 		"CustomMsg":     info.CustomMsg,
 		"CustomJS":      info.CustomJS,
@@ -110,28 +114,16 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		"ButtonRightJS": errorCodeConfig.ButtonRightJS,
 	}
 
-	// 处理错误原因
-	reasonText := ""
-	if data["Detail"].(string) != "" && !data["ShowDetail"].(bool) {
-		reasonText = data["Detail"].(string)
-	}
-	data["ReasonText"] = escapeHTML(reasonText)
-
-	// TraceID - 只显示前16位，悬停显示完整ID 32位
-	traceID := data["TraceID"].(string)
-	traceIDShort := traceID
-	if len(traceID) > 16 {
-		traceIDShort = traceID[:16] + "..."
-	}
-	data["TraceIDShort"] = traceIDShort
-
 	// 使用 GoFrame 模板引擎渲染
+	r.Response.Status = errorCodeConfig.HTTPStatus
 	err := r.Response.WriteTplContent(errorTemplate, data)
 	if err != nil {
 		// 如果模板渲染失败，返回一个简单的错误页面
-		g.Log().Error(ctx, "Error rendering template:", err)
+		g.Log().Error(ctx, "错误页面模板渲染失败:", err)
 		r.Response.ClearBuffer()
-		r.Response.Write("错误页面模板渲染错误，错误信息：" + err.Error())
+		r.Response.Writeln("Trace ID:", gctx.CtxId(ctx))
+		r.Response.Writeln(gerror.Wrap(err, "错误页面模板渲染失败"))
+		r.Response.Status = http.StatusBadGateway
 	}
 }
 
