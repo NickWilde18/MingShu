@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"uniauth-gateway/internal/consts"
+	m "uniauth-gateway/internal/middlewares"
 
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/util/grand"
@@ -51,10 +52,16 @@ func Login(r *ghttp.Request) {
 		r.Session.Set("state", state)
 
 		if len(tplContentLogin) == 0 {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, "无法从资源中读取登录页面模板")
+			m.RenderError(r, m.ErrorInfo{
+				ErrorCode: consts.ErrCodeInternalServer,
+				Detail: "无法从资源中读取登录页面模板。<br/>The login page template cannot be read from the resource.",
+			})
 		}
 		if err := r.Response.WriteTplContent(tplContentLogin); err != nil {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.Wrap(err, "写入登录页面失败"))
+			m.RenderError(r, m.ErrorInfo{
+				ErrorCode: consts.ErrCodeInternalServer,
+				Detail: "写入登录页面失败。<br/>The login page template cannot be written to the resource.",
+			})
 		}
 		return
 	}
@@ -86,10 +93,16 @@ func LoginLegacy(r *ghttp.Request) {
 		r.Session.Set("state", state)
 
 		if len(tplContentLegacy) == 0 {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, "无法从资源中读取登录页面模板")
+			m.RenderError(r, m.ErrorInfo{
+				ErrorCode: consts.ErrCodeInternalServer,
+				Detail: "无法从资源中读取登录页面模板。<br/>The login page template cannot be read from the resource.",
+			})
 		}
 		if err := r.Response.WriteTplContent(tplContentLegacy); err != nil {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.Wrap(err, "写入登录页面失败"))
+			m.RenderError(r, m.ErrorInfo{
+				ErrorCode: consts.ErrCodeInternalServer,
+				Detail: "写入登录页面失败。<br/>The login page template cannot be written to the resource.",
+			})
 		}
 		return
 	}

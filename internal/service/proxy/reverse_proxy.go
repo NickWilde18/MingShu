@@ -8,8 +8,6 @@ import (
 	"strings"
 
 	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 
@@ -36,21 +34,13 @@ func ReverseProxy(r *ghttp.Request) {
 	}
 
 	// 检查微服务权限
-	if err := uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "access"); err != nil {
-		if gerror.Code(err) == gcode.CodeInternalError {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, err)
-		}
-		r.Response.WriteStatusExit(http.StatusForbidden, err)
-		return
-	}
+	uniGf.CheckPermission(ctx, r.Session.MustGet("user_id").String(), service, "access")
 
 	// 获取服务对应的代理地址
 	proxyHostMap := g.Cfg("proxy_host_map").MustData(ctx)
 	proxyHostVar, ok := proxyHostMap[service]
 	if !ok {
-		g.Log().Errorf(r.Context(), "未找到服务[%s]对应的代理地址", service)
-		r.Response.WriteStatus(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址", service))
-		return
+		r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址<br/>The proxy address for service [%s] cannot be found.", service, service))
 	}
 	proxyHost := proxyHostVar.(string)
 
@@ -60,8 +50,7 @@ func ReverseProxy(r *ghttp.Request) {
 			// 解析目标地址
 			target, err := url.Parse(proxyHost)
 			if err != nil {
-				g.Log().Errorf(r.Context(), "Proxy URL %s 解析失败：%v", proxyHost, err)
-				return
+				r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf("Proxy URL %s 解析失败：%v<br/>The proxy URL %s cannot be parsed: %v", proxyHost, err, proxyHost, err))
 			}
 
 			// 重写请求的 URL、Host 和 请求头

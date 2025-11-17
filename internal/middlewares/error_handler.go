@@ -34,6 +34,8 @@ type ErrorInfo struct {
 
 const ctxKeyErrorInfo = "ERROR_INFO"
 
+// ErrorHandler 自定义错误处理
+// 注意：该函数执行后会在**自动**退出当前 Handler。
 func ErrorHandler(r *ghttp.Request) {
 	r.Middleware.Next()
 
@@ -125,6 +127,7 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		r.Response.Writeln(gerror.Wrap(err, "错误页面模板渲染失败"))
 		r.Response.Status = http.StatusBadGateway
 	}
+	r.Exit()
 }
 
 // escapeHTML 转义HTML特殊字符，防止XSS攻击

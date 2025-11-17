@@ -15,20 +15,18 @@ const (
 	ErrCodeUnauthorized   = 2001 // 未认证
 	ErrCodeSessionExpired = 2002 // 会话过期
 	ErrCodeInvalidToken   = 2003 // 无效的令牌
-	ErrCodeLoginFailed    = 2004 // 登录失败
-	ErrCodeLogoutFailed   = 2005 // 登出失败
-	ErrCodeCallbackFailed = 2006 // SSO回调失败
+	ErrCodeLogoutFailed   = 2004 // 登出失败
+	ErrCodeCallbackFailed = 2005 // SSO回调失败
 
 	// 权限相关错误 (3xxx)
 	ErrCodeForbidden = 3001 // 无权访问
 
 	// 请求相关错误 (4xxx)
 	ErrCodeBadRequest            = 4001 // 请求参数错误
-	ErrCodeNotFound              = 4004 // 资源未找到
-	ErrCodeMethodNotAllowed      = 4005 // 方法不允许
-	ErrCodeInvalidParameter      = 4006 // 参数无效
-	ErrCodeTooManyRequests       = 4007 // 请求过多
-	ErrCodeRequestEntityTooLarge = 4008 // 请求实体过大
+	ErrCodeNotFound              = 4002 // 资源未找到
+	ErrCodeMethodNotAllowed      = 4003 // 方法不允许
+	ErrCodeTooManyRequests       = 4004 // 请求过多
+	ErrCodeRequestEntityTooLarge = 4005 // 请求实体过大
 
 	// 代理相关错误 (5xxx)
 	ErrCodeBadGateway      = 5001 // 代理失败
@@ -170,20 +168,6 @@ var ErrorCodeMap = map[int]ErrorCode{
 		ButtonRight:   "重试 / Retry",
 		ButtonRightJS: "location.reload();",
 	},
-	ErrCodeLoginFailed: {
-		Code:          ErrCodeLoginFailed,
-		HTTPStatus:    http.StatusUnauthorized,
-		TitleZh:       "登录失败",
-		TitleEn:       "Login Failed",
-		MessageZh:     "无法完成登录流程。",
-		MessageEn:     "Unable to complete the login process.",
-		SuggestionZh:  "请验证您的凭据并重试。",
-		SuggestionEn:  "Please verify your credentials and try again.",
-		ButtonLeft:    "前往登录页 / Login Page",
-		ButtonLeftJS:  "location.href = '/auth/login';",
-		ButtonRight:   "重试 / Retry",
-		ButtonRightJS: "location.reload();",
-	},
 	ErrCodeLogoutFailed: {
 		Code:         ErrCodeLogoutFailed,
 		HTTPStatus:   http.StatusInternalServerError,
@@ -271,20 +255,6 @@ var ErrorCodeMap = map[int]ErrorCode{
 		ButtonRight:   "重试 / Retry",
 		ButtonRightJS: "location.reload();",
 	},
-	ErrCodeInvalidParameter: {
-		Code:          ErrCodeInvalidParameter,
-		HTTPStatus:    http.StatusBadRequest,
-		TitleZh:       "参数无效",
-		TitleEn:       "Invalid Parameter",
-		MessageZh:     "您的请求中包含一个或多个无效参数。",
-		MessageEn:     "One or more parameters in your request are invalid.",
-		SuggestionZh:  "请验证所有参数及其值。",
-		SuggestionEn:  "Please verify all parameters and their values.",
-		ButtonLeft:    "返回首页 / Home Page",
-		ButtonLeftJS:  "location.href = '/';",
-		ButtonRight:   "重试 / Retry",
-		ButtonRightJS: "location.reload();",
-	},
 	ErrCodeTooManyRequests: {
 		Code:          ErrCodeTooManyRequests,
 		HTTPStatus:    http.StatusTooManyRequests,
@@ -318,8 +288,8 @@ var ErrorCodeMap = map[int]ErrorCode{
 		HTTPStatus:    http.StatusBadGateway,
 		TitleZh:       "网关错误",
 		TitleEn:       "Bad Gateway",
-		MessageZh:     "我们这边似乎出了一点技术问题，导致您的请求无法完成。",
-		MessageEn:     "It seems we're experiencing a technical issue on our end that prevented your request from completing.",
+		MessageZh:     "上游服务出现问题，导致您的请求无法完成。",
+		MessageEn:     "The upstream service encountered an issue, preventing your request from completing.",
 		SuggestionZh:  "这通常是暂时的，请稍候重试。",
 		SuggestionEn:  "This is usually temporary. Please try again in a moment.",
 		ButtonLeft:    "返回首页 / Home Page",

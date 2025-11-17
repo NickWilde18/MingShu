@@ -1,14 +1,15 @@
 package auth
 
 import (
-	"net/http"
+	"fmt"
 
-	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/golang-jwt/jwt/v5"
 
+	"uniauth-gateway/internal/consts"
+	m "uniauth-gateway/internal/middlewares"
 	"uniauth-gateway/internal/service/uniGf"
 )
 
@@ -16,10 +17,17 @@ func Callback(r *ghttp.Request) {
 	state := r.Get("state").String()
 	oState, err := r.Session.Get("state")
 	if removeErr := r.Session.Remove("state"); removeErr != nil {
-		g.Log().Errorf(r.Context(), "清除 Session 失败: %v", removeErr.Error())
+		g.Log().Error(r.Context(), gerror.Wrap(removeErr, "清除 Session 失败"))
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeCallbackFailed,
+			Detail:    removeErr.Error(),
+		})
 	}
 	if err != nil || oState.IsNil() || oState.String() != state {
-		r.Response.WriteStatusExit(http.StatusUnauthorized, "State 不存在或校验不通过")
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeInvalidToken,
+			Detail:    "State 不存在或校验不通过",
+		})
 	}
 	code := r.Get("code").String()
 	ctx := r.Context()
@@ -38,51 +46,49 @@ func Callback(r *ghttp.Request) {
 
 	_, ok := response["error"]
 	if ok {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.Newf(
-			`因为以下原因，SSO认证失败，请重试。
-SSO authentication failed due to the following reason. Please try again.
-
-错误/Error: %s
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeCallbackFailed,
+			Detail: fmt.Sprintf(
+				`因为以下原因，SSO认证失败，请重试。<br/>
+SSO authentication failed due to the following reason. Please try again.<br/>
+错误/Error: %s<br/>
 错误描述/Error Description: %s`,
-			response["error"],
-			response["error_description"],
-		))
+				response["error"],
+				response["error_description"],
+			),
+		})
 	}
 
 	accessToken, ok := response["access_token"]
 	if !ok {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.New(
-			`SSO认证信息返回信息中没有Access Token。这通常不是你的问题，请联系管理员检查日志。
-Can not get your access token. This is usually not your issue. Please contact the administrator to check the logs.`,
-		))
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeCallbackFailed,
+			Detail: "SSO认证信息返回信息中没有 Access Token。可能是登录过于频繁，请稍后再试。<br/>The SSO authentication response does not contain an Access Token. This may be due to excessive login attempts; please try again later.",
+		})
 	}
 
 	parser := jwt.NewParser()
 	token, _, err := parser.ParseUnverified(accessToken.(string), &jwt.MapClaims{})
 	if err != nil {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.Wrap(err, "JWT 解析失败"))
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeCallbackFailed,
+			Detail: "JWT 解析失败。<br/>The JWT parsing failed.",
+		})
 	}
 	upn, ok := (*(token.Claims.(*jwt.MapClaims)))["upn"]
 	if !ok {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, gerror.New("JWT 中没有 upn 字段"))
+		m.RenderError(r, m.ErrorInfo{
+			ErrorCode: consts.ErrCodeCallbackFailed,
+			Detail: "JWT 中没有 upn 字段。<br/>The JWT does not contain the upn field.",
+		})
 	}
 
-	g.Log().Infof(ctx, "upn: %s", upn)
 	// 先看upn存不存在
-	if err = uniGf.ExistUPN(ctx, upn.(string)); err != nil {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
-	}
+	uniGf.ExistUPN(ctx, upn.(string))
 	// 再看upn有没有权限进入
-	if err = uniGf.CheckPermission(ctx, upn.(string), "platform", "access"); err != nil {
-		if gerror.Code(err) == gcode.CodeInternalError {
-			r.Response.WriteStatusExit(http.StatusInternalServerError, err)
-		}
-		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
-	}
+	uniGf.CheckPermission(ctx, upn.(string), "platform", "access")
 	// 最后Ensure QP
-	if err = uniGf.EnsureQP(ctx, upn.(string)); err != nil {
-		r.Response.WriteStatusExit(http.StatusInternalServerError, err)
-	}
+	uniGf.EnsureQP(ctx, upn.(string))
 
 	// 记录 Session
 	r.Session.RegenerateId(true)
