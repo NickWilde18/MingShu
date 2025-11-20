@@ -512,7 +512,7 @@
         </div>
         
         <div class="error-footer">
-            <span class="zh">香港中文大学（深圳）GPT服务统一鉴权系统</span>
+            <span class="zh">香港中文大学（深圳）GPT服务统一鉴权</span>
             <span class="en">CUHK-Shenzhen GPT Services UniAuth Gateway</span>
         </div>
     </div>
