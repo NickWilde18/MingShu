@@ -165,8 +165,6 @@ var ErrorCodeMap = map[int]ErrorCode{
 		SuggestionEn:  "Please log in again to get a new token.",
 		ButtonLeft:    "前往登录页 / Login Page",
 		ButtonLeftJS:  "location.href = '/auth/login';",
-		ButtonRight:   "重试 / Retry",
-		ButtonRightJS: "location.reload();",
 	},
 	ErrCodeLogoutFailed: {
 		Code:         ErrCodeLogoutFailed,
@@ -192,8 +190,6 @@ var ErrorCodeMap = map[int]ErrorCode{
 		SuggestionEn:  "Please try logging in again from the beginning.",
 		ButtonLeft:    "前往登录页 / Login Page",
 		ButtonLeftJS:  "location.href = '/auth/login';",
-		ButtonRight:   "重试 / Retry",
-		ButtonRightJS: "location.reload();",
 	},
 
 	// 权限相关

@@ -54,13 +54,15 @@ func Login(r *ghttp.Request) {
 		if len(tplContentLogin) == 0 {
 			m.RenderError(r, m.ErrorInfo{
 				ErrorCode: consts.ErrCodeInternalServer,
-				Detail: "无法从资源中读取登录页面模板。<br/>The login page template cannot be read from the resource.",
+				Detail: `无法从资源中读取登录页面模板。
+The login page template cannot be read from the resource.`,
 			})
 		}
 		if err := r.Response.WriteTplContent(tplContentLogin); err != nil {
 			m.RenderError(r, m.ErrorInfo{
 				ErrorCode: consts.ErrCodeInternalServer,
-				Detail: "写入登录页面失败。<br/>The login page template cannot be written to the resource.",
+				Detail: `写入登录页面失败。
+The login page template cannot be written to the resource.`,
 			})
 		}
 		return
@@ -95,13 +97,15 @@ func LoginLegacy(r *ghttp.Request) {
 		if len(tplContentLegacy) == 0 {
 			m.RenderError(r, m.ErrorInfo{
 				ErrorCode: consts.ErrCodeInternalServer,
-				Detail: "无法从资源中读取登录页面模板。<br/>The login page template cannot be read from the resource.",
+				Detail: `无法从资源中读取登录页面模板。
+The login page template cannot be read from the resource.`,
 			})
 		}
 		if err := r.Response.WriteTplContent(tplContentLegacy); err != nil {
 			m.RenderError(r, m.ErrorInfo{
 				ErrorCode: consts.ErrCodeInternalServer,
-				Detail: "写入登录页面失败。<br/>The login page template cannot be written to the resource.",
+				Detail: `写入登录页面失败。
+The login page template cannot be written to the resource.`,
 			})
 		}
 		return

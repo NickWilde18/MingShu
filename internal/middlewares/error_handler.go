@@ -104,7 +104,7 @@ func RenderError(r *ghttp.Request, info ErrorInfo) {
 		"ShowDetail":   g.Cfg().MustGet(ctx, "server.showDetail", true).Bool(),
 		"Detail":       escapeHTML(info.Detail),
 		"TraceID":      gctx.CtxId(ctx),
-		"TraceIDShort": gctx.CtxId(ctx)[:7] + "...",
+		"TraceIDShort": gctx.CtxId(ctx)[:9] + "...",
 		"ErrorCode":    errorCodeConfig.Code,
 		"Timestamp":    time.Now().Format("2006-01-02 15:04:05"),
 
@@ -139,7 +139,7 @@ func escapeHTML(s string) string {
 	s = gstr.Replace(s, "'", "&#39;")
 
 	// <br/> 换行允许显示
-	s = gstr.Replace(s, "&lt;br/&gt;", "<br/>")
-	s = gstr.Replace(s, "&lt;br&gt;", "<br/>")
+	// s = gstr.Replace(s, "&lt;br/&gt;", "<br/>")
+	// s = gstr.Replace(s, "&lt;br&gt;", "<br/>")
 	return s
 }

@@ -40,7 +40,8 @@ func ReverseProxy(r *ghttp.Request) {
 	proxyHostMap := g.Cfg("proxy_host_map").MustData(ctx)
 	proxyHostVar, ok := proxyHostMap[service]
 	if !ok {
-		r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf("未找到服务[%s]对应的代理地址<br/>The proxy address for service [%s] cannot be found.", service, service))
+		r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf(`未找到服务[%s]对应的代理地址。
+The proxy address for service [%s] cannot be found.`, service, service))
 	}
 	proxyHost := proxyHostVar.(string)
 
@@ -50,7 +51,8 @@ func ReverseProxy(r *ghttp.Request) {
 			// 解析目标地址
 			target, err := url.Parse(proxyHost)
 			if err != nil {
-				r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf("Proxy URL %s 解析失败：%v<br/>The proxy URL %s cannot be parsed: %v", proxyHost, err, proxyHost, err))
+				r.Response.WriteStatusExit(http.StatusBadRequest, fmt.Sprintf(`Proxy URL %s 解析失败：%v
+The proxy URL %s cannot be parsed: %v`, proxyHost, err, proxyHost, err))
 			}
 
 			// 重写请求的 URL、Host 和 请求头

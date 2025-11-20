@@ -20,20 +20,23 @@ func CheckPermission(ctx context.Context, sub string, obj string, act string) {
 	if response.IsNil() || response.IsEmpty() {
 		m.RenderError(g.RequestFromCtx(ctx), m.ErrorInfo{
 			ErrorCode: consts.ErrCodeBadGateway,
-			Detail: "权限检查：统一鉴权内部请求没有响应或返回内容为空。<br/>The permission check: the internal request to the unified authorization does not respond or the returned content is empty.",
+			Detail: `权限检查：统一鉴权内部请求没有响应或返回内容为空。
+The permission check: the internal request to the unified authorization does not respond or the returned content is empty.`,
 		})
 	}
 	content := response.Map()
 	if !content["success"].(bool) {
 		m.RenderError(g.RequestFromCtx(ctx), m.ErrorInfo{
 			ErrorCode: consts.ErrCodeBadGateway,
-			Detail: "权限检查失败：" + content["message"].(string) + "<br/>The permission check failed: " + content["message"].(string),
+			Detail: "权限检查失败：" + content["message"].(string) + `
+The permission check failed: ` + content["message"].(string),
 		})
 	}
 	if !content["data"].(g.Map)["allow"].(bool) {
 		m.RenderError(g.RequestFromCtx(ctx), m.ErrorInfo{
 			ErrorCode: consts.ErrCodeForbidden,
-			Detail: fmt.Sprintf("你没有权限使用 [%s] %s。请联系管理员。<br/>You do not have permission to use [%s] %s. Please contact the administrator.", obj, act, obj, act),
+			Detail: fmt.Sprintf(`你没有权限使用 [%s] %s。请联系管理员。
+You do not have permission to use [%s] %s. Please contact the administrator.`, obj, act, obj, act),
 		})
 	}
 }

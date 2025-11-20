@@ -49,9 +49,9 @@ func Callback(r *ghttp.Request) {
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeCallbackFailed,
 			Detail: fmt.Sprintf(
-				`因为以下原因，SSO认证失败，请重试。<br/>
-SSO authentication failed due to the following reason. Please try again.<br/>
-错误/Error: %s<br/>
+				`因为以下原因，SSO认证失败，请重试。
+SSO authentication failed due to the following reason. Please try again.
+错误/Error: %s
 错误描述/Error Description: %s`,
 				response["error"],
 				response["error_description"],
@@ -63,7 +63,8 @@ SSO authentication failed due to the following reason. Please try again.<br/>
 	if !ok {
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeCallbackFailed,
-			Detail: "SSO认证信息返回信息中没有 Access Token。可能是登录过于频繁，请稍后再试。<br/>The SSO authentication response does not contain an Access Token. This may be due to excessive login attempts; please try again later.",
+			Detail: `SSO认证信息返回信息中没有 Access Token。可能是登录过于频繁，请稍后再试。
+The SSO authentication response does not contain an Access Token. This may be due to excessive login attempts; please try again later.`,
 		})
 	}
 
@@ -72,14 +73,16 @@ SSO authentication failed due to the following reason. Please try again.<br/>
 	if err != nil {
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeCallbackFailed,
-			Detail: "JWT 解析失败。<br/>The JWT parsing failed.",
+			Detail: `JWT 解析失败。
+The JWT parsing failed.`,
 		})
 	}
 	upn, ok := (*(token.Claims.(*jwt.MapClaims)))["upn"]
 	if !ok {
 		m.RenderError(r, m.ErrorInfo{
 			ErrorCode: consts.ErrCodeCallbackFailed,
-			Detail: "JWT 中没有 upn 字段。<br/>The JWT does not contain the upn field.",
+			Detail: `JWT 中没有 upn 字段。
+The JWT does not contain the upn field.`,
 		})
 	}
 
