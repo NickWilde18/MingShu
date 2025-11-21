@@ -71,7 +71,7 @@ var (
 			// 特殊处理 favicon.png
 			s.BindHandler("GET:/favicon.png", func(r *ghttp.Request) {
 				r.Response.Header().Set("Content-Type", "image/png")
-				r.Response.WriteStatusExit(http.StatusOK, favicon)
+				r.Response.WriteStatus(http.StatusOK, favicon)
 			})
 
 			// 不需要登录验证的路由组
