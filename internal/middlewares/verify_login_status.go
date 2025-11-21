@@ -14,7 +14,6 @@ func VerifyLoginStatus(r *ghttp.Request) {
 		r.Session.Set("user_id", "mszure")
 		r.Middleware.Next()
 	}
-
 	// 验证登录状态
 	userID, err := r.Session.Get("user_id")
 	if err != nil || userID.IsNil() {
@@ -27,5 +26,6 @@ You are not logged in, redirecting to login page in 3 seconds...`,
 		})
 		return
 	}
+	r.Session.Set("user_id", userID)  // 刷新延长 Session 时间
 	r.Middleware.Next()
 }
