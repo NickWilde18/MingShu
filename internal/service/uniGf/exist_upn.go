@@ -25,13 +25,13 @@ The internal request does not respond or the returned content is empty.`,
 	if !content["success"].(bool) {
 		m.RenderError(g.RequestFromCtx(ctx), m.ErrorInfo{
 			ErrorCode: consts.ErrCodeForbidden,
-			Detail: `无法查找到你的AD域信息。这通常不是你的问题。
-如果您是新入职/入学的人员，请在1天后再登录。
-如您已经入职/入学1天以上，或想立即进入平台，请联系管理员手动同步AD域数据库。
+			Detail: `无法查找到你的 AD 域信息。这通常不是你的问题。
+如果您是新入职/入学的人员，请在 1 天后再登录。
+如您已经入职/入学1天以上，或想立即进入平台，请联系 ITSO 手动同步 AD 域数据库。
 
 AD domain information could not be found. This is usually not your issue.
 If you are a new employee/student, please try logging in again after 1 day.
-If you have been employed/enrolled for more than 1 day, or wish to access the platform immediately, please contact the administrator to manually synchronize the AD domain database.`,
+If you have been employed/enrolled for more than 1 day, or wish to access the platform immediately, please contact ITSO to manually synchronize the AD domain database.`,
 		})
 	}
 }

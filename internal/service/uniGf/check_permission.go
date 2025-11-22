@@ -35,8 +35,8 @@ The permission check failed: ` + content["message"].(string),
 	if !content["data"].(g.Map)["allow"].(bool) {
 		m.RenderError(g.RequestFromCtx(ctx), m.ErrorInfo{
 			ErrorCode: consts.ErrCodeForbidden,
-			Detail: fmt.Sprintf(`你没有权限使用 [%s] %s。请联系管理员。
-You do not have permission to use [%s] %s. Please contact the administrator.`, obj, act, obj, act),
+			Detail: fmt.Sprintf(`你没有权限使用 [%s] %s。请联系 ITSO。
+You do not have permission to use [%s] %s. Please contact ITSO.`, obj, act, obj, act),
 		})
 	}
 }

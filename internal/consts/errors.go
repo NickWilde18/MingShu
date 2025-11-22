@@ -201,7 +201,7 @@ var ErrorCodeMap = map[int]ErrorCode{
 		MessageZh:     "您没有权限访问此资源。",
 		MessageEn:     "You don't have permission to access this resource.",
 		SuggestionZh:  "如果您认为应该有访问权限，请联系ITSO。",
-		SuggestionEn:  "If you believe you should have access, please contact your administrator.",
+		SuggestionEn:  "If you believe you should have access, please contact ITSO.",
 		ButtonLeft:    "返回首页 / Home Page",
 		ButtonLeftJS:  "location.href = '/';",
 		ButtonRight:   "重试 / Retry",
