@@ -88,10 +88,10 @@ The JWT does not contain the upn field.`,
 
 	// 先看upn存不存在
 	uniGf.ExistUPN(ctx, upn.(string))
+	// 然后必须 Ensure QP
+	uniGf.EnsureQP(ctx, upn.(string))
 	// 再看upn有没有权限进入
 	uniGf.CheckPermission(ctx, upn.(string), "platform", "access")
-	// 最后Ensure QP
-	uniGf.EnsureQP(ctx, upn.(string))
 
 	// 记录 Session
 	r.Session.RegenerateId(true)
